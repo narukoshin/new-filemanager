@@ -39,7 +39,7 @@ jobs:
           cd mirror.git
 
           git remote add codeberg \
-            "https://${CODEBERG_USER}:${CODEBERG_TOKEN}@codeberg.org/${CODEBERG_USER}/${GITHUB_REPOSITORY}.git"
+            "https://${CODEBERG_USER}:${CODEBERG_TOKEN}@codeberg.org/${GITHUB_REPOSITORY}.git"
 
           git push --prune codeberg \
             'refs/heads/*:refs/heads/*' \
