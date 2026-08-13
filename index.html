@@ -69,6 +69,22 @@
       outline-offset: 3px;
     }
 
+    .skip-link {
+      position: fixed;
+      z-index: 50;
+      top: 10px;
+      left: 10px;
+      padding: 7px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 10px;
+      transform: translateY(-160%);
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
     .page {
       position: relative;
       z-index: 1;
@@ -289,6 +305,10 @@
       gap: 20px;
     }
 
+    .file-browser {
+      position: relative;
+    }
+
     .path {
       min-width: 0;
       display: flex;
@@ -300,7 +320,53 @@
     }
 
     .path-prefix { color: var(--quiet); }
-    .path-current { color: var(--text); }
+
+    .back-button {
+      width: 27px;
+      height: 27px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      flex: 0 0 27px;
+    }
+
+    .back-button:hover:not(:disabled) {
+      border-color: var(--line-strong);
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .back-button:disabled { cursor: default; opacity: 0.32; }
+
+    .breadcrumbs {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .breadcrumb {
+      min-width: 0;
+      padding: 3px 2px;
+      border: 0;
+      background: transparent;
+      color: var(--quiet);
+      font-size: 11px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .breadcrumb:hover { color: #e6a0b6; }
+    .breadcrumb[aria-current="page"] { color: var(--text); cursor: default; }
+
+    .breadcrumb-separator {
+      margin: 0 3px;
+      color: var(--line-strong);
+      flex: 0 0 auto;
+    }
 
     .tools {
       min-width: 0;
@@ -459,6 +525,26 @@
       text-transform: lowercase;
     }
 
+    .sort-button {
+      width: max-content;
+      padding: 5px 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+    }
+
+    .sort-button:hover { color: var(--muted); }
+
+    .sort-indicator {
+      display: inline-block;
+      width: 9px;
+      margin-left: 3px;
+      color: var(--accent);
+    }
+
     .file-head > :last-child {
       display: none;
       text-align: right;
@@ -482,7 +568,7 @@
       transition: background 140ms ease;
     }
 
-    .file-row:last-of-type { border-bottom: 0; }
+    .file-row:has(+ .empty-state) { border-bottom: 0; }
 
     .file-row:hover,
     .file-row:focus-within {
@@ -690,6 +776,196 @@
     .empty-state[hidden] { display: none; }
     .empty-query { color: var(--muted); }
 
+    .drop-overlay {
+      position: absolute;
+      z-index: 8;
+      inset: 0;
+      border: 1px dashed #8f5366;
+      border-radius: 7px;
+      background: rgba(10, 10, 11, 0.9);
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+    }
+
+    .drop-overlay[hidden] { display: none; }
+
+    .drop-message {
+      display: grid;
+      justify-items: center;
+      gap: 9px;
+      color: #e6a0b6;
+      font-size: 11px;
+    }
+
+    .drop-message .pixel-icon {
+      width: 28px;
+      height: 28px;
+      --icon-main: #bc6984;
+      --icon-light: #efb0c4;
+      --icon-dark: #704052;
+    }
+
+    .upload-panel {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 7px;
+      background: rgba(13, 13, 15, 0.72);
+    }
+
+    .upload-panel[hidden] { display: none; }
+
+    .upload-panel-head {
+      display: flex;
+      justify-content: space-between;
+      color: var(--quiet);
+      font-size: 9px;
+    }
+
+    #upload-list { display: grid; gap: 7px; }
+
+    .upload-clear {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--quiet);
+      font-size: 9px;
+    }
+
+    .upload-clear:hover { color: var(--muted); }
+
+    .upload-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 46px;
+      gap: 5px 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 9px;
+    }
+
+    .upload-item-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .upload-item-status { color: var(--quiet); text-align: right; }
+    .upload-item.failed .upload-item-status { color: #d58191; }
+    .upload-item.complete .upload-item-status { color: #6da99c; }
+
+    .upload-track {
+      grid-column: 1 / -1;
+      height: 2px;
+      background: var(--line);
+      overflow: hidden;
+    }
+
+    .upload-progress {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #8f73b7, var(--accent));
+      transition: width 100ms linear;
+    }
+
+    .upload-item.failed .upload-progress { background: #924f5d; }
+    .upload-item.complete .upload-progress { background: #559d97; }
+
+    .preview-dialog { width: min(calc(100% - 32px), 720px); }
+
+    .preview-shell { padding: 0; }
+
+    .preview-head {
+      min-height: 54px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .preview-heading { min-width: 0; }
+
+    .preview-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .preview-meta {
+      margin: 2px 0 0;
+      color: var(--quiet);
+      font-size: 9px;
+    }
+
+    .preview-close {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .preview-close:hover { border-color: var(--line-strong); color: var(--text); }
+
+    .preview-content {
+      min-height: 310px;
+      max-height: min(62vh, 560px);
+      overflow: auto;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.012) 25%, transparent 25%) 0 0 / 18px 18px,
+        linear-gradient(-45deg, rgba(255,255,255,0.012) 25%, transparent 25%) 0 0 / 18px 18px,
+        #09090a;
+    }
+
+    .preview-image {
+      display: block;
+      max-width: 100%;
+      max-height: min(58vh, 520px);
+      object-fit: contain;
+    }
+
+    .preview-placeholder {
+      padding: 28px;
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      color: var(--quiet);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .preview-placeholder .pixel-icon { width: 52px; height: 52px; }
+
+    .preview-text {
+      width: 100%;
+      min-height: 310px;
+      margin: 0;
+      padding: 22px;
+      color: #bdb9c2;
+      font: 11px/1.75 var(--font);
+      white-space: pre-wrap;
+    }
+
+    .preview-foot {
+      min-height: 48px;
+      padding: 8px 16px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
     dialog {
       width: min(calc(100% - 32px), 430px);
       padding: 0;
@@ -851,6 +1127,8 @@
         flex-direction: column;
       }
 
+      .path { width: 100%; }
+      .breadcrumbs { flex: 1 1 auto; }
       .tools { width: 100%; }
       .search { width: auto; flex: 1 1 auto; }
 
@@ -872,6 +1150,9 @@
         flex-direction: column;
         gap: 5px;
       }
+
+      .preview-content { min-height: 240px; }
+      .preview-text { min-height: 240px; padding: 16px; }
     }
 
     @media (max-width: 460px) {
@@ -882,6 +1163,8 @@
       .action { width: 32px; padding: 0; justify-content: center; }
       .tools { gap: 7px; }
       .actions { gap: 6px; }
+      .path-prefix { display: none; }
+      .breadcrumb { max-width: 110px; }
       .file-head,
       .file-row { grid-template-columns: minmax(0, 1fr) 70px; }
 
@@ -889,6 +1172,26 @@
       body[data-auth="true"] .file-row {
         grid-template-columns: minmax(0, 1fr) 70px 54px;
       }
+
+      .protected-badge span { display: none; }
+      .protected-badge { width: 20px; padding: 0 3px; }
+      .upload-item { grid-template-columns: minmax(0, 1fr) 38px; }
+      .preview-head { padding: 0 12px; }
+      .preview-foot { padding: 8px 12px; }
+    }
+
+    @media (pointer: coarse) {
+      .login,
+      .action,
+      .search-input { min-height: 40px; }
+
+      .back-button,
+      .more-button,
+      .preview-close { width: 40px; height: 40px; }
+
+      .breadcrumb { min-height: 40px; }
+      .menu-item,
+      .account-signout { min-height: 40px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -901,6 +1204,7 @@
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#file-browser">skip to files</a>
   <canvas class="galaxy" id="galaxy" aria-hidden="true"></canvas>
 
   <svg class="icon-sprite" aria-hidden="true">
@@ -1001,9 +1305,9 @@
             <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use id="auth-icon" href="#icon-login"/></svg>
             <span id="auth-label">log in</span>
           </button>
-          <div class="account-menu" id="account-menu" hidden>
+          <div class="account-menu" id="account-menu" role="menu" hidden>
             <div class="account-summary">signed in as<strong id="account-name">naru</strong></div>
-            <button class="account-signout" id="signout-button" type="button">← sign out</button>
+            <button class="account-signout" id="signout-button" type="button" role="menuitem">← sign out</button>
           </div>
         </div>
       </div>
@@ -1015,12 +1319,13 @@
       <p class="intro">a quiet place for files, builds and things worth keeping around.</p>
     </section>
 
-    <section aria-label="File browser">
+    <section class="file-browser" id="file-browser" aria-label="File browser" tabindex="-1">
       <div class="toolbar">
-        <div class="path" aria-label="Current path">
+        <nav class="path" aria-label="Current folder">
+          <button class="back-button" id="back-button" type="button" aria-label="Go to parent folder" disabled>←</button>
           <span class="path-prefix">naru@wold:</span>
-          <span class="path-current">~/uploads/</span>
-        </div>
+          <span class="breadcrumbs" id="breadcrumbs"></span>
+        </nav>
 
         <div class="tools">
           <label class="search">
@@ -1045,30 +1350,59 @@
         </div>
       </div>
 
-      <div class="file-head" aria-hidden="true">
-        <span>name</span>
-        <span>size</span>
-        <span>modified</span>
+      <div class="upload-panel" id="upload-panel" aria-live="polite" hidden>
+        <div class="upload-panel-head"><span>upload queue</span><button class="upload-clear" id="upload-clear" type="button">clear finished</button></div>
+        <div id="upload-list"></div>
+      </div>
+
+      <div class="file-head" role="row">
+        <span role="columnheader"><button class="sort-button" type="button" data-sort="name">name<span class="sort-indicator" aria-hidden="true"></span></button></span>
+        <span role="columnheader"><button class="sort-button" type="button" data-sort="size">size<span class="sort-indicator" aria-hidden="true"></span></button></span>
+        <span role="columnheader"><button class="sort-button" type="button" data-sort="modified">modified<span class="sort-indicator" aria-hidden="true"></span></button></span>
         <span>actions</span>
       </div>
 
-      <div class="file-list" id="file-list">
-        <div class="empty-state" id="empty-state" hidden>
-          <span>no files matching <span class="empty-query" id="empty-query"></span></span>
+      <div class="file-list" id="file-list" role="list" aria-label="Files and folders">
+        <div class="empty-state" id="empty-state" role="status" hidden>
+          <span id="empty-message">this folder is empty</span>
+        </div>
+      </div>
+
+      <div class="drop-overlay" id="drop-overlay" hidden>
+        <div class="drop-message">
+          <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-upload"/></svg>
+          <span id="drop-message-text">drop files into this folder</span>
         </div>
       </div>
     </section>
 
     <footer class="footer">
-      <span class="footer-command"><span id="visible-count">6</span> <span id="entry-label">entries</span> / <span id="visible-size">21.3 mb</span></span>
+      <span class="footer-command" aria-live="polite"><span id="visible-count">6</span> <span id="entry-label">entries</span> / <span id="visible-size">21.3 mb</span></span>
       <span>ÞERXWOLD // FILE NODE 01</span>
     </footer>
   </main>
 
-  <dialog id="login-dialog">
+  <dialog class="preview-dialog" id="preview-dialog" aria-labelledby="preview-title">
+    <div class="preview-shell">
+      <header class="preview-head">
+        <div class="preview-heading">
+          <h2 class="preview-title" id="preview-title">file preview</h2>
+          <p class="preview-meta" id="preview-meta"></p>
+        </div>
+        <button class="preview-close" type="button" data-close="preview-dialog" aria-label="Close preview">×</button>
+      </header>
+      <div class="preview-content" id="preview-content"></div>
+      <footer class="preview-foot">
+        <button class="dialog-button" id="preview-download" type="button">download ↓</button>
+        <button class="dialog-button primary" type="button" data-close="preview-dialog">done</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="login-dialog" aria-labelledby="login-title">
     <form class="dialog-form" id="login-form">
       <p class="dialog-kicker">private access</p>
-      <h2 class="dialog-title">log in to file node 01</h2>
+      <h2 class="dialog-title" id="login-title">log in to file node 01</h2>
       <p class="dialog-copy">Frontend preview: any non-empty credentials unlock file management for this session.</p>
       <label class="field">username
         <input class="field-input" id="username" name="username" autocomplete="username" required />
@@ -1083,10 +1417,10 @@
     </form>
   </dialog>
 
-  <dialog id="unlock-dialog">
+  <dialog id="unlock-dialog" aria-labelledby="unlock-title">
     <form class="dialog-form" id="unlock-form">
       <p class="dialog-kicker">protected folder</p>
-      <h2 class="dialog-title">unlock <span id="unlock-name"></span></h2>
+      <h2 class="dialog-title" id="unlock-title">unlock <span id="unlock-name"></span></h2>
       <p class="dialog-copy">Enter the folder password to continue. It will remain unlocked for this session.</p>
       <p class="security-note">Frontend preview password: <code>threshold</code></p>
       <label class="field">folder password
@@ -1100,7 +1434,7 @@
     </form>
   </dialog>
 
-  <dialog id="security-dialog">
+  <dialog id="security-dialog" aria-labelledby="security-title">
     <form class="dialog-form" id="security-form">
       <p class="dialog-kicker">folder security</p>
       <h2 class="dialog-title" id="security-title">protect folder</h2>
@@ -1122,7 +1456,7 @@
     </form>
   </dialog>
 
-  <dialog id="name-dialog">
+  <dialog id="name-dialog" aria-labelledby="name-title">
     <form class="dialog-form" id="name-form">
       <p class="dialog-kicker" id="name-kicker">file action</p>
       <h2 class="dialog-title" id="name-title">rename item</h2>
@@ -1137,11 +1471,11 @@
     </form>
   </dialog>
 
-  <dialog id="delete-dialog">
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
     <form class="dialog-form" id="delete-form">
       <p class="dialog-kicker">destructive action</p>
-      <h2 class="dialog-title">delete this item?</h2>
-      <p class="dialog-copy">This will remove <strong id="delete-name"></strong> from the current frontend session.</p>
+      <h2 class="dialog-title" id="delete-title">delete this item?</h2>
+      <p class="dialog-copy" id="delete-copy">This will remove <strong id="delete-name"></strong> from the current frontend session.</p>
       <div class="dialog-actions">
         <button class="dialog-button" type="button" data-close="delete-dialog">cancel</button>
         <button class="dialog-button danger" type="submit">delete permanently</button>
@@ -1246,12 +1580,16 @@
     })();
 
     const entries = [
-      { id: 1, name: "builds", type: "folder", size: 0, modified: "today, 02:14" },
-      { id: 2, name: "screenshots", type: "folder", size: 0, modified: "08 aug", protected: true, password: "threshold", unlocked: false },
-      { id: 3, name: "therxwold-release.zip", type: "archive", size: 18_400_000, modified: "07 aug" },
-      { id: 4, name: "notes.txt", type: "text", size: 4_200, modified: "02 aug" },
-      { id: 5, name: "void_004.png", type: "image", size: 812_000, modified: "28 jul" },
-      { id: 6, name: "archive.db", type: "database", size: 2_100_000, modified: "13 jul" }
+      { id: 1, parentId: null, name: "builds", type: "folder", size: 0, modified: "today, 02:14", modifiedAt: 1723508040000 },
+      { id: 2, parentId: null, name: "screenshots", type: "folder", size: 0, modified: "08 aug", modifiedAt: 1723132800000, protected: true, password: "threshold", unlocked: false },
+      { id: 3, parentId: null, name: "therxwold-release.zip", type: "archive", size: 18_400_000, modified: "07 aug", modifiedAt: 1723046400000 },
+      { id: 4, parentId: null, name: "notes.txt", type: "text", size: 4_200, modified: "02 aug", modifiedAt: 1722614400000, content: "// PROJECT ÞERXWOLD\n\nkeep the signal quiet.\nkeep the archive readable.\nkeep building beyond the threshold.\n" },
+      { id: 5, parentId: null, name: "void_004.png", type: "image", size: 812_000, modified: "28 jul", modifiedAt: 1722124800000 },
+      { id: 6, parentId: null, name: "archive.db", type: "database", size: 2_100_000, modified: "13 jul", modifiedAt: 1720828800000 },
+      { id: 7, parentId: 1, name: "nightly-v0.4.2.zip", type: "archive", size: 6_800_000, modified: "today, 02:12", modifiedAt: 1723507920000 },
+      { id: 8, parentId: 1, name: "README.md", type: "text", size: 2_800, modified: "today, 01:58", modifiedAt: 1723507080000, content: "# nightly builds\n\nExperimental artifacts from file node 01.\n\n- verify checksums\n- keep releases reproducible\n- do not cross the threshold alone\n" },
+      { id: 9, parentId: 2, name: "signal-room.png", type: "image", size: 940_000, modified: "08 aug", modifiedAt: 1723132800000 },
+      { id: 10, parentId: 2, name: "capture-notes.txt", type: "text", size: 1_700, modified: "08 aug", modifiedAt: 1723132700000, content: "capture 01 // signal stable\ncapture 02 // presence detected\n" }
     ];
 
     const typeDetails = {
@@ -1263,10 +1601,14 @@
       generic: { className: "text-file", icon: "text" }
     };
 
+    const fileBrowser = document.querySelector("#file-browser");
     const fileList = document.querySelector("#file-list");
     const searchInput = document.querySelector("#file-search");
+    const backButton = document.querySelector("#back-button");
+    const breadcrumbs = document.querySelector("#breadcrumbs");
+    const sortButtons = [...document.querySelectorAll("[data-sort]")];
     const emptyState = document.querySelector("#empty-state");
-    const emptyQuery = document.querySelector("#empty-query");
+    const emptyMessage = document.querySelector("#empty-message");
     const visibleCount = document.querySelector("#visible-count");
     const visibleSize = document.querySelector("#visible-size");
     const entryLabel = document.querySelector("#entry-label");
@@ -1280,6 +1622,16 @@
     const newFolderButton = document.querySelector("#new-folder-button");
     const uploadButton = document.querySelector("#upload-button");
     const filePicker = document.querySelector("#file-picker");
+    const dropOverlay = document.querySelector("#drop-overlay");
+    const dropMessageText = document.querySelector("#drop-message-text");
+    const uploadPanel = document.querySelector("#upload-panel");
+    const uploadList = document.querySelector("#upload-list");
+    const uploadClear = document.querySelector("#upload-clear");
+    const previewDialog = document.querySelector("#preview-dialog");
+    const previewTitle = document.querySelector("#preview-title");
+    const previewMeta = document.querySelector("#preview-meta");
+    const previewContent = document.querySelector("#preview-content");
+    const previewDownload = document.querySelector("#preview-download");
     const loginDialog = document.querySelector("#login-dialog");
     const loginForm = document.querySelector("#login-form");
     const usernameInput = document.querySelector("#username");
@@ -1308,13 +1660,19 @@
     const deleteDialog = document.querySelector("#delete-dialog");
     const deleteForm = document.querySelector("#delete-form");
     const deleteName = document.querySelector("#delete-name");
+    const deleteCopy = document.querySelector("#delete-copy");
     const toast = document.querySelector("#toast");
 
     let isAuthenticated = false;
     let activeEntryId = null;
     let nameMode = "rename";
     let securityMode = "protect";
-    let nextId = 7;
+    let currentFolderId = null;
+    let previewEntryId = null;
+    let sortKey = "name";
+    let sortDirection = "asc";
+    let nextId = 11;
+    let dragDepth = 0;
     let toastTimer;
 
     function formatSize(bytes) {
@@ -1330,6 +1688,62 @@
       if (["db", "sqlite", "sqlite3"].includes(extension)) return "database";
       if (["txt", "md", "json", "html", "css", "js", "ts"].includes(extension)) return "text";
       return "generic";
+    }
+
+    function downloadEntry(entry) {
+      const source = entry.objectUrl || URL.createObjectURL(new Blob([
+        entry.content || `Frontend preview for ${entry.name}\n`
+      ], { type: entry.type === "text" ? "text/plain" : "application/octet-stream" }));
+      const link = document.createElement("a");
+      link.href = source;
+      link.download = entry.name;
+      link.click();
+      if (!entry.objectUrl) setTimeout(() => URL.revokeObjectURL(source), 0);
+      showToast(`downloading <strong>${entry.name}</strong>`);
+    }
+
+    function previewPlaceholder(entry, iconName, message) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "preview-placeholder";
+      const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      icon.setAttribute("class", "pixel-icon");
+      icon.setAttribute("viewBox", "0 0 16 16");
+      const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+      use.setAttribute("href", `#icon-${iconName}`);
+      icon.append(use);
+      const label = document.createElement("span");
+      label.textContent = message;
+      placeholder.append(icon, label);
+      return placeholder;
+    }
+
+    function openPreview(entry) {
+      previewEntryId = entry.id;
+      previewTitle.textContent = entry.name;
+      previewMeta.textContent = `${entry.type} · ${formatSize(entry.size)} · modified ${entry.modified}`;
+      previewContent.replaceChildren();
+
+      if (entry.type === "text") {
+        const text = document.createElement("pre");
+        text.className = "preview-text";
+        text.textContent = entry.content || `// ${entry.name}\n\nText preview is available when file content is loaded.`;
+        previewContent.append(text);
+      } else if (entry.type === "image" && entry.objectUrl) {
+        const image = document.createElement("img");
+        image.className = "preview-image";
+        image.src = entry.objectUrl;
+        image.alt = `Preview of ${entry.name}`;
+        previewContent.append(image);
+      } else {
+        const details = typeDetails[entry.type] || typeDetails.generic;
+        const message = entry.type === "image"
+          ? "image preview placeholder · connect the storage URL later"
+          : `${entry.type} preview · ${formatSize(entry.size)}`;
+        previewContent.append(previewPlaceholder(entry, details.icon, message));
+      }
+
+      previewDownload.onclick = () => downloadEntry(entry);
+      previewDialog.showModal();
     }
 
     function showToast(message) {
@@ -1349,8 +1763,80 @@
       button.type = "button";
       button.className = `menu-item${danger ? " danger" : ""}`;
       button.dataset.command = command;
+      button.setAttribute("role", "menuitem");
       button.innerHTML = `<span>${label}</span><span class="menu-symbol" aria-hidden="true">${symbol}</span>`;
       return button;
+    }
+
+    function folderTrail(folderId = currentFolderId) {
+      const trail = [];
+      let folder = entries.find((entry) => entry.id === folderId);
+      while (folder) {
+        trail.unshift(folder);
+        folder = entries.find((entry) => entry.id === folder.parentId);
+      }
+      return trail;
+    }
+
+    function renderBreadcrumbs() {
+      breadcrumbs.replaceChildren();
+      const trail = folderTrail();
+      const parts = [{ id: null, name: "~/uploads" }, ...trail];
+      parts.forEach((part, index) => {
+        if (index > 0) {
+          const separator = document.createElement("span");
+          separator.className = "breadcrumb-separator";
+          separator.textContent = "/";
+          separator.setAttribute("aria-hidden", "true");
+          breadcrumbs.append(separator);
+        }
+        const crumb = document.createElement("button");
+        crumb.type = "button";
+        crumb.className = "breadcrumb";
+        crumb.textContent = part.name;
+        if (index === parts.length - 1) crumb.setAttribute("aria-current", "page");
+        else crumb.addEventListener("click", () => navigateTo(part.id));
+        breadcrumbs.append(crumb);
+      });
+      backButton.disabled = currentFolderId === null;
+    }
+
+    function navigateTo(folderId) {
+      if (folderId !== null) {
+        const folder = entries.find((entry) => entry.id === folderId && entry.type === "folder");
+        if (!folder) return;
+        if (folder.protected && !folder.unlocked) {
+          openUnlockDialog(folder);
+          return;
+        }
+      }
+      currentFolderId = folderId;
+      searchInput.value = "";
+      closeMenus();
+      renderFiles();
+      fileBrowser.focus({ preventScroll: true });
+    }
+
+    function sortedEntries(items) {
+      return [...items].sort((left, right) => {
+        if (left.type === "folder" && right.type !== "folder") return -1;
+        if (left.type !== "folder" && right.type === "folder") return 1;
+        let result;
+        if (sortKey === "size") result = left.size - right.size;
+        else if (sortKey === "modified") result = left.modifiedAt - right.modifiedAt;
+        else result = left.name.localeCompare(right.name, undefined, { sensitivity: "base", numeric: true });
+        return sortDirection === "asc" ? result : -result;
+      });
+    }
+
+    function updateSortControls() {
+      sortButtons.forEach((button) => {
+        const active = button.dataset.sort === sortKey;
+        button.setAttribute("aria-pressed", String(active));
+        button.parentElement.setAttribute("aria-sort", active ? (sortDirection === "asc" ? "ascending" : "descending") : "none");
+        button.querySelector(".sort-indicator").textContent = active ? (sortDirection === "asc" ? "↑" : "↓") : "";
+        button.setAttribute("aria-label", `Sort by ${button.dataset.sort}${active ? `, currently ${sortDirection === "asc" ? "ascending" : "descending"}` : ""}`);
+      });
     }
 
     function createRow(entry) {
@@ -1360,6 +1846,7 @@
       row.dataset.file = "";
       row.dataset.id = entry.id;
       row.dataset.name = entry.name;
+      row.setAttribute("role", "listitem");
 
       const openButton = document.createElement("button");
       openButton.type = "button";
@@ -1384,11 +1871,8 @@
       }
       openButton.append(name);
       openButton.addEventListener("click", () => {
-        if (entry.type === "folder" && entry.protected && !entry.unlocked) {
-          openUnlockDialog(entry);
-          return;
-        }
-        showToast(`<strong>${entry.name}</strong> opened in preview`);
+        if (entry.type === "folder") navigateTo(entry.id);
+        else openPreview(entry);
       });
 
       const size = document.createElement("span");
@@ -1439,26 +1923,33 @@
 
     function renderFiles() {
       fileList.querySelectorAll("[data-file]").forEach((row) => row.remove());
-      entries.forEach((entry) => fileList.insertBefore(createRow(entry), emptyState));
+      const folderEntries = entries.filter((entry) => entry.parentId === currentFolderId);
+      sortedEntries(folderEntries).forEach((entry) => fileList.insertBefore(createRow(entry), emptyState));
+      renderBreadcrumbs();
+      updateSortControls();
       filterFiles();
     }
 
     function filterFiles() {
       const query = searchInput.value.trim().toLowerCase();
-      const matchingEntries = entries.filter((entry) => entry.name.toLowerCase().includes(query));
+      const matchingEntries = entries.filter((entry) => entry.parentId === currentFolderId && entry.name.toLowerCase().includes(query));
       document.querySelectorAll("[data-file]").forEach((row) => {
         row.hidden = !row.dataset.name.toLowerCase().includes(query);
       });
       visibleCount.textContent = matchingEntries.length;
       entryLabel.textContent = matchingEntries.length === 1 ? "entry" : "entries";
-      visibleSize.textContent = formatSize(matchingEntries.reduce((total, entry) => total + entry.size, 0));
+      const totalSize = matchingEntries.reduce((total, entry) => total + entry.size, 0);
+      visibleSize.textContent = totalSize ? formatSize(totalSize) : "0 b";
       emptyState.hidden = matchingEntries.length !== 0;
-      emptyQuery.textContent = query ? `“${searchInput.value.trim()}”` : "";
+      emptyMessage.textContent = query ? `no files matching “${searchInput.value.trim()}”` : "this folder is empty";
     }
 
     function setAuthenticated(value, username = "naru") {
       isAuthenticated = value;
-      if (!value) entries.forEach((entry) => { if (entry.protected) entry.unlocked = false; });
+      if (!value) {
+        entries.forEach((entry) => { if (entry.protected) entry.unlocked = false; });
+        if (folderTrail().some((folder) => folder.protected)) currentFolderId = null;
+      }
       document.body.dataset.auth = String(value);
       authLabel.textContent = value ? username : "log in";
       authIcon.setAttribute("href", value ? "#icon-account" : "#icon-login");
@@ -1529,28 +2020,98 @@
       if (command === "delete") {
         activeEntryId = id;
         deleteName.textContent = `“${entry.name}”`;
+        deleteCopy.lastChild.textContent = entry.type === "folder"
+          ? " and everything inside it from the current frontend session."
+          : " from the current frontend session.";
         deleteDialog.showModal();
       }
-      if (command === "download") {
-        const blob = new Blob([`Frontend preview for ${entry.name}\n`], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = entry.name;
-        link.click();
-        URL.revokeObjectURL(url);
-        showToast(`downloading <strong>${entry.name}</strong>`);
-      }
+      if (command === "download") downloadEntry(entry);
     }
 
-    function uniqueName(name) {
-      if (!entries.some((entry) => entry.name.toLowerCase() === name.toLowerCase())) return name;
+    function uniqueName(name, parentId = currentFolderId) {
+      if (!entries.some((entry) => entry.parentId === parentId && entry.name.toLowerCase() === name.toLowerCase())) return name;
       const dot = name.lastIndexOf(".");
       const stem = dot > 0 ? name.slice(0, dot) : name;
       const extension = dot > 0 ? name.slice(dot) : "";
       let index = 2;
-      while (entries.some((entry) => entry.name.toLowerCase() === `${stem}-${index}${extension}`.toLowerCase())) index += 1;
+      while (entries.some((entry) => entry.parentId === parentId && entry.name.toLowerCase() === `${stem}-${index}${extension}`.toLowerCase())) index += 1;
       return `${stem}-${index}${extension}`;
+    }
+
+    function createUploadItem(file) {
+      const item = document.createElement("div");
+      item.className = "upload-item";
+      const filename = document.createElement("span");
+      filename.className = "upload-item-name";
+      filename.textContent = file.name;
+      const status = document.createElement("span");
+      status.className = "upload-item-status";
+      status.textContent = "0%";
+      const track = document.createElement("div");
+      track.className = "upload-track";
+      const progress = document.createElement("div");
+      progress.className = "upload-progress";
+      track.append(progress);
+      item.append(filename, status, track);
+      uploadList.append(item);
+      return { item, status, progress };
+    }
+
+    function finishUpload(file, ui, parentId) {
+      const type = getType(file.name);
+      const entry = {
+        id: nextId++,
+        parentId,
+        name: uniqueName(file.name, parentId),
+        type,
+        size: file.size,
+        modified: "just now",
+        modifiedAt: Date.now()
+      };
+      entry.objectUrl = URL.createObjectURL(file);
+      if (type === "text") file.text().then((content) => { entry.content = content; });
+      entries.push(entry);
+      ui.item.classList.add("complete");
+      ui.status.textContent = "done";
+      ui.progress.style.width = "100%";
+      if (currentFolderId === parentId) renderFiles();
+    }
+
+    function queueUpload(file, parentId) {
+      const ui = createUploadItem(file);
+      if (file.size > 25_000_000) {
+        ui.item.classList.add("failed");
+        ui.status.textContent = "too large";
+        ui.progress.style.width = "100%";
+        return;
+      }
+
+      let progress = 0;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const timer = setInterval(() => {
+        progress = reducedMotion ? 100 : Math.min(100, progress + Math.ceil(Math.random() * 17));
+        ui.progress.style.width = `${progress}%`;
+        ui.status.textContent = `${progress}%`;
+        if (progress === 100) {
+          clearInterval(timer);
+          finishUpload(file, ui, parentId);
+        }
+      }, reducedMotion ? 20 : 90);
+    }
+
+    function handleUploads(fileCollection) {
+      const files = [...fileCollection];
+      if (!files.length) return;
+      if (!isAuthenticated) {
+        showToast("log in before uploading files");
+        loginDialog.showModal();
+        usernameInput.focus();
+        return;
+      }
+      uploadPanel.hidden = false;
+      const targetFolderId = currentFolderId;
+      files.forEach((file) => queueUpload(file, targetFolderId));
+      showToast(`queued <strong>${files.length}</strong> ${files.length === 1 ? "file" : "files"}`);
     }
 
     authButton.addEventListener("click", (event) => {
@@ -1585,7 +2146,7 @@
       }
       entry.unlocked = true;
       unlockDialog.close();
-      renderFiles();
+      navigateTo(entry.id);
       showToast(`unlocked and opened <strong>${entry.name}</strong>`);
     });
 
@@ -1633,21 +2194,21 @@
     newFolderButton.addEventListener("click", () => openNameDialog("create"));
     uploadButton.addEventListener("click", () => filePicker.click());
     filePicker.addEventListener("change", () => {
-      const uploaded = [...filePicker.files];
-      uploaded.forEach((file) => {
-        entries.push({ id: nextId++, name: uniqueName(file.name), type: getType(file.name), size: file.size, modified: "just now" });
-      });
-      if (uploaded.length) {
-        renderFiles();
-        showToast(`uploaded <strong>${uploaded.length}</strong> ${uploaded.length === 1 ? "file" : "files"}`);
-      }
+      handleUploads(filePicker.files);
       filePicker.value = "";
+    });
+
+    uploadClear.addEventListener("click", () => {
+      uploadList.querySelectorAll(".complete, .failed").forEach((item) => item.remove());
+      uploadPanel.hidden = !uploadList.children.length;
     });
 
     nameForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = nameInput.value.trim();
-      const duplicate = entries.some((entry) => entry.name.toLowerCase() === value.toLowerCase() && entry.id !== activeEntryId);
+      const activeEntry = entries.find((entry) => entry.id === activeEntryId);
+      const targetParentId = nameMode === "rename" ? activeEntry?.parentId ?? null : currentFolderId;
+      const duplicate = entries.some((entry) => entry.parentId === targetParentId && entry.name.toLowerCase() === value.toLowerCase() && entry.id !== activeEntryId);
       nameInput.setCustomValidity(duplicate ? "An item with this name already exists." : "");
       if (!nameForm.reportValidity()) return;
       if (nameMode === "rename") {
@@ -1656,9 +2217,10 @@
         entry.name = value;
         entry.type = entry.type === "folder" ? "folder" : getType(value);
         entry.modified = "just now";
+        entry.modifiedAt = Date.now();
         showToast(`renamed <strong>${oldName}</strong> to <strong>${value}</strong>`);
       } else {
-        entries.unshift({ id: nextId++, name: value, type: "folder", size: 0, modified: "just now" });
+        entries.unshift({ id: nextId++, parentId: currentFolderId, name: value, type: "folder", size: 0, modified: "just now", modifiedAt: Date.now() });
         showToast(`created folder <strong>${value}</strong>`);
       }
       nameDialog.close();
@@ -1670,6 +2232,24 @@
       const index = entries.findIndex((entry) => entry.id === activeEntryId);
       if (index < 0) return;
       const [deleted] = entries.splice(index, 1);
+      const descendantIds = new Set([deleted.id]);
+      let foundChildren = true;
+      while (foundChildren) {
+        foundChildren = false;
+        entries.forEach((entry) => {
+          if (descendantIds.has(entry.parentId) && !descendantIds.has(entry.id)) {
+            descendantIds.add(entry.id);
+            foundChildren = true;
+          }
+        });
+      }
+      for (let childIndex = entries.length - 1; childIndex >= 0; childIndex -= 1) {
+        if (descendantIds.has(entries[childIndex].id)) {
+          if (entries[childIndex].objectUrl) URL.revokeObjectURL(entries[childIndex].objectUrl);
+          entries.splice(childIndex, 1);
+        }
+      }
+      if (deleted.objectUrl) URL.revokeObjectURL(deleted.objectUrl);
       deleteDialog.close();
       renderFiles();
       showToast(`deleted <strong>${deleted.name}</strong>`);
@@ -1677,6 +2257,56 @@
 
     document.querySelectorAll("[data-close]").forEach((button) => {
       button.addEventListener("click", () => document.querySelector(`#${button.dataset.close}`).close());
+    });
+
+    backButton.addEventListener("click", () => {
+      if (currentFolderId === null) return;
+      const currentFolder = entries.find((entry) => entry.id === currentFolderId);
+      navigateTo(currentFolder?.parentId ?? null);
+    });
+
+    sortButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextKey = button.dataset.sort;
+        if (sortKey === nextKey) sortDirection = sortDirection === "asc" ? "desc" : "asc";
+        else {
+          sortKey = nextKey;
+          sortDirection = nextKey === "modified" ? "desc" : "asc";
+        }
+        renderFiles();
+      });
+    });
+
+    fileBrowser.addEventListener("dragenter", (event) => {
+      if (![...event.dataTransfer.types].includes("Files")) return;
+      event.preventDefault();
+      dragDepth += 1;
+      dropMessageText.textContent = isAuthenticated ? "drop files into this folder" : "log in to upload these files";
+      dropOverlay.hidden = false;
+    });
+
+    fileBrowser.addEventListener("dragover", (event) => {
+      if (![...event.dataTransfer.types].includes("Files")) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = isAuthenticated ? "copy" : "none";
+    });
+
+    fileBrowser.addEventListener("dragleave", (event) => {
+      event.preventDefault();
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) dropOverlay.hidden = true;
+    });
+
+    fileBrowser.addEventListener("drop", (event) => {
+      event.preventDefault();
+      dragDepth = 0;
+      dropOverlay.hidden = true;
+      handleUploads(event.dataTransfer.files);
+    });
+
+    window.addEventListener("dragend", () => {
+      dragDepth = 0;
+      dropOverlay.hidden = true;
     });
 
     searchInput.addEventListener("input", filterFiles);
@@ -1688,6 +2318,11 @@
 
     document.addEventListener("keydown", (event) => {
       const isTyping = /input|textarea/i.test(document.activeElement.tagName);
+      if (event.key === "Escape") {
+        closeMenus();
+        accountMenu.hidden = true;
+        authButton.setAttribute("aria-expanded", "false");
+      }
       if (event.key === "/" && !isTyping && !document.querySelector("dialog[open]")) {
         event.preventDefault();
         searchInput.focus();
@@ -1696,6 +2331,10 @@
         searchInput.value = "";
         filterFiles();
         searchInput.blur();
+      }
+      if (event.altKey && event.key === "ArrowLeft" && !document.querySelector("dialog[open]")) {
+        event.preventDefault();
+        backButton.click();
       }
     });
 
