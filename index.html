@@ -115,15 +115,31 @@
       transition: 140ms ease;
     }
 
-    .login::before {
-      content: "→";
-      color: var(--accent);
-    }
-
     .login:hover {
       border-color: var(--line-strong);
       background: var(--surface-hover);
       color: var(--text);
+    }
+
+    .pixel-icon {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      display: block;
+      shape-rendering: crispEdges;
+    }
+
+    .icon-sprite {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .login .pixel-icon {
+      --icon-main: var(--accent);
+      --icon-light: #e6a0b6;
+      --icon-dark: #6e3d4d;
     }
 
     .hero {
@@ -193,20 +209,19 @@
       position: absolute;
       top: 50%;
       left: 10px;
-      width: 13px;
-      height: 13px;
+      width: 16px;
+      height: 16px;
       transform: translateY(-50%);
       color: var(--quiet);
       pointer-events: none;
     }
 
-    .search-icon svg {
+    .search-icon .pixel-icon {
       width: 100%;
       height: 100%;
-      stroke: currentColor;
-      stroke-width: 1.7;
-      fill: none;
-      stroke-linecap: round;
+      --icon-main: var(--quiet);
+      --icon-light: var(--muted);
+      --icon-dark: var(--line-strong);
     }
 
     .search-input {
@@ -288,6 +303,18 @@
       color: #f0b2c5;
     }
 
+    .action .pixel-icon {
+      --icon-main: #9474b8;
+      --icon-light: #c3a0dc;
+      --icon-dark: var(--accent);
+    }
+
+    .action.primary .pixel-icon {
+      --icon-main: #bc6984;
+      --icon-light: #efb0c4;
+      --icon-dark: #704052;
+    }
+
     .file-head,
     .file-row {
       display: grid;
@@ -360,11 +387,6 @@
     .icon svg {
       width: 16px;
       height: 16px;
-      stroke: currentColor;
-      stroke-width: 1.4;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
     }
 
     .filename {
@@ -377,15 +399,49 @@
     }
 
     .folder .filename { color: #f0eeeb; }
-    .folder .icon { color: var(--accent); }
+
+    .folder .icon {
+      --icon-main: #8f73b7;
+      --icon-light: #c1a0dc;
+      --icon-dark: #4b3a62;
+      --icon-detail: var(--accent);
+    }
+
+    .archive-file .icon {
+      --icon-main: #c99536;
+      --icon-light: #edc15b;
+      --icon-dark: #725121;
+      --icon-detail: #312719;
+    }
+
+    .text-file .icon {
+      --icon-main: #898394;
+      --icon-light: #b8b0c1;
+      --icon-dark: #4c4854;
+      --icon-detail: #625a70;
+    }
+
+    .image-file .icon {
+      --icon-main: #559d97;
+      --icon-light: #85c9c0;
+      --icon-dark: #285e5b;
+      --icon-detail: var(--accent);
+    }
+
+    .database-file .icon {
+      --icon-main: #607cae;
+      --icon-light: #8fa8db;
+      --icon-dark: #35486f;
+      --icon-detail: #252d42;
+    }
 
     .file-row:hover .filename,
     .file-row:focus-visible .filename { color: #fff; }
 
     .file-row:hover .icon,
     .file-row:focus-visible .icon {
-      color: #e6a0b6;
       transform: translateX(2px);
+      filter: brightness(1.12);
     }
 
     .size,
@@ -473,6 +529,71 @@
   </style>
 </head>
 <body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <defs>
+      <symbol id="icon-folder" viewBox="0 0 16 16">
+        <path fill="var(--icon-detail, #dc7d9b)" d="M2 3h5v2H2z"/>
+        <path fill="var(--icon-main, #8f73b7)" d="M1 5h14v8H1z"/>
+        <path fill="var(--icon-light, #c1a0dc)" d="M2 5h12v1H2z"/>
+        <path fill="var(--icon-dark, #4b3a62)" d="M2 12h12v1H2zM6 9h1v1H6zM9 9h1v1H9z"/>
+      </symbol>
+
+      <symbol id="icon-text" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #898394)" d="M3 1h7l3 3v11H3z"/>
+        <path fill="var(--icon-light, #b8b0c1)" d="M4 2h5v4h3v8H4zM10 2l2 2h-2z"/>
+        <path fill="var(--icon-detail, #625a70)" d="M5 8h6v1H5zM5 10h5v1H5zM5 12h4v1H5z"/>
+        <path fill="var(--icon-dark, #4c4854)" d="M3 14h10v1H3z"/>
+      </symbol>
+
+      <symbol id="icon-archive" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #c99536)" d="M3 1h7l3 3v11H3z"/>
+        <path fill="var(--icon-light, #edc15b)" d="M4 2h5v3h3v2H4zM10 2l2 2h-2z"/>
+        <path fill="var(--icon-dark, #725121)" d="M3 14h10v1H3z"/>
+        <path fill="var(--icon-detail, #312719)" d="M7 2h2v2H7zM8 4h2v2H8zM7 6h2v2H7zM8 8h2v2H8zM7 10h2v3H7z"/>
+      </symbol>
+
+      <symbol id="icon-image" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #559d97)" d="M3 1h7l3 3v11H3z"/>
+        <path fill="var(--icon-light, #85c9c0)" d="M4 2h5v4h3v4l-2-2-2 3-1-1-3 3zM10 2l2 2h-2z"/>
+        <path fill="var(--icon-detail, #dc7d9b)" d="M5 4h2v2H5z"/>
+        <path fill="var(--icon-dark, #285e5b)" d="M4 13l3-3 1 1 2-3 2 2v4H4zM3 14h10v1H3z"/>
+      </symbol>
+
+      <symbol id="icon-database" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #607cae)" d="M3 2h10v1h1v10h-1v1H3v-1H2V3h1z"/>
+        <path fill="var(--icon-light, #8fa8db)" d="M4 2h8v1h1v1h-1v1H4V4H3V3h1zM3 7h1v1h8V7h1v2h-1v1H4V9H3z"/>
+        <path fill="var(--icon-dark, #35486f)" d="M3 11h1v1h8v-1h1v2h-1v1H4v-1H3z"/>
+        <path fill="var(--icon-detail, #252d42)" d="M5 7h1v1H5zM10 7h1v1h-1z"/>
+      </symbol>
+
+      <symbol id="icon-search" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #77777f)" fill-rule="evenodd" d="M4 2h6v1h2v2h1v5h-1v2h-2v1H4v-1H2v-2H1V5h1V3h2zm0 2v1H3v5h1v1h6v-1h1V5h-1V4z"/>
+        <path fill="var(--icon-light, #8b8b94)" d="M11 11h2v2h2v2h-2v-2h-2z"/>
+      </symbol>
+
+      <symbol id="icon-new-folder" viewBox="0 0 16 16">
+        <path fill="var(--icon-dark, #dc7d9b)" d="M2 3h5v2H2z"/>
+        <path fill="var(--icon-main, #9474b8)" d="M1 5h13v8H1z"/>
+        <path fill="var(--icon-light, #c3a0dc)" d="M2 5h11v1H2z"/>
+        <path fill="#0d0d0f" d="M10 8h2v2h2v2h-2v2h-2v-2H8v-2h2z"/>
+        <path fill="#77cbb9" d="M10 9h2v2h2v1h-2v2h-1v-2H9v-1h2V9z"/>
+      </symbol>
+
+      <symbol id="icon-upload" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #bc6984)" d="M7 2h2v1h1v1h1v1h1v2H9v5H7V7H4V5h1V4h1V3h1z"/>
+        <path fill="var(--icon-light, #efb0c4)" d="M7 3h1v8H7z"/>
+        <path fill="var(--icon-dark, #704052)" d="M2 11h2v2h8v-2h2v4H2z"/>
+      </symbol>
+
+      <symbol id="icon-login" viewBox="0 0 16 16">
+        <path fill="var(--icon-main, #dc7d9b)" d="M7 1h7v14H7v-2h2V3H7z"/>
+        <path fill="var(--icon-light, #e6a0b6)" d="M9 3h4v11H9z"/>
+        <path fill="var(--icon-dark, #6e3d4d)" d="M11 8h1v1h-1z"/>
+        <path fill="#77cbb9" d="M1 7h5V5l3 3-3 3V9H1z"/>
+      </symbol>
+    </defs>
+  </svg>
+
   <main class="page">
     <header class="topbar">
       <div class="brand">
@@ -486,7 +607,10 @@
           <span class="status-dot" aria-hidden="true"></span>
           <span class="status-label">public node</span>
         </div>
-        <a class="login" href="/login">log in</a>
+        <a class="login" href="/login">
+          <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-login"/></svg>
+          <span>log in</span>
+        </a>
       </div>
     </header>
 
@@ -506,7 +630,7 @@
         <div class="tools">
           <label class="search">
             <span class="search-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4 4"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-search"/></svg>
             </span>
             <input class="search-input" id="file-search" type="search" placeholder="search files" aria-label="Search files" autocomplete="off" />
             <span class="search-key" aria-hidden="true">/</span>
@@ -514,10 +638,12 @@
 
           <div class="actions">
             <button class="action" type="button" aria-label="New folder">
-              <span>+</span><span class="label">folder</span>
+              <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-new-folder"/></svg>
+              <span class="label">folder</span>
             </button>
             <button class="action primary" type="button" aria-label="Upload file">
-              <span>↑</span><span class="label">upload</span>
+              <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-upload"/></svg>
+              <span class="label">upload</span>
             </button>
           </div>
         </div>
@@ -533,7 +659,7 @@
         <button class="file-row folder" type="button" data-file data-name="builds">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 7.5v-2a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v2"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-folder"/></svg>
             </span>
             <span class="filename">builds</span>
           </span>
@@ -544,7 +670,7 @@
         <button class="file-row folder" type="button" data-file data-name="screenshots">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 7.5v-2a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v2"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-folder"/></svg>
             </span>
             <span class="filename">screenshots</span>
           </span>
@@ -552,10 +678,10 @@
           <span class="modified">08 aug</span>
         </button>
 
-        <button class="file-row" type="button" data-file data-name="therxwold-release.zip">
+        <button class="file-row archive-file" type="button" data-file data-name="therxwold-release.zip">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-archive"/></svg>
             </span>
             <span class="filename">therxwold-release.zip</span>
           </span>
@@ -563,10 +689,10 @@
           <span class="modified">07 aug</span>
         </button>
 
-        <button class="file-row" type="button" data-file data-name="notes.txt">
+        <button class="file-row text-file" type="button" data-file data-name="notes.txt">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-text"/></svg>
             </span>
             <span class="filename">notes.txt</span>
           </span>
@@ -574,10 +700,10 @@
           <span class="modified">02 aug</span>
         </button>
 
-        <button class="file-row" type="button" data-file data-name="void_004.png">
+        <button class="file-row image-file" type="button" data-file data-name="void_004.png">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><path d="m7 15 3.2-3.2 2.4 2.4 2.1-2.1L18 15.5"/><circle cx="8.5" cy="8.5" r="1"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-image"/></svg>
             </span>
             <span class="filename">void_004.png</span>
           </span>
@@ -585,10 +711,10 @@
           <span class="modified">28 jul</span>
         </button>
 
-        <button class="file-row" type="button" data-file data-name="archive.db">
+        <button class="file-row database-file" type="button" data-file data-name="archive.db">
           <span class="name">
             <span class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></svg>
+              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-database"/></svg>
             </span>
             <span class="filename">archive.db</span>
           </span>
