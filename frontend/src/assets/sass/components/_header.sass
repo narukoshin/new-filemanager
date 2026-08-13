@@ -1,0 +1,149 @@
+@use "../config"
+@use "buttons"
+
+.topbar
+    min-height: 42px
+    padding-bottom: 12px
+    border-bottom: 1px solid rgba(35, 35, 40, 0.72)
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 20px
+    color: var(--muted)
+    font-size: 11px
+
+.brand,
+.status
+    display: inline-flex
+    align-items: center
+    gap: 9px
+
+.brand
+    &-mark
+        color: var(--text)
+        font-weight: 500
+        letter-spacing: -0.045em
+
+    &-project
+        margin-right: 2px
+        color: var(--quiet)
+        font-size: 9px
+        letter-spacing: 0.08em
+
+    &-thorn
+        color: var(--accent)
+        text-shadow: 0 0 10px rgba(220, 125, 155, 0.3)
+
+.top-actions
+    display: inline-flex
+    align-items: center
+    gap: 14px
+
+.slash
+    color: var(--quiet)
+
+.status
+    &-dot
+        width: 5px
+        height: 5px
+        border-radius: 999px
+        background: var(--accent)
+        box-shadow: 0 0 8px rgba(220, 125, 155, 0.32)
+
+.login
+    @include buttons.frame(30px, 0 11px)
+    display: inline-flex
+    align-items: center
+    gap: 7px
+    transition: config.$transition-fast
+
+    &:hover
+        @include buttons.hover(var(--surface-hover))
+
+    .pixel-icon
+        --icon-main: var(--accent)
+        --icon-light: #{config.$color-accent-light}
+        --icon-dark: #{config.$color-accent-dark}
+
+.account
+    position: relative
+
+    &-menu
+        position: absolute
+        z-index: 12
+        top: calc(100% + 8px)
+        right: 0
+        width: 190px
+        padding: 7px
+        border: 1px solid var(--line-strong)
+        border-radius: config.$radius-large
+        background: #0e0e10
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45)
+
+        &[hidden]
+            display: none
+
+        .menu-item
+            margin-top: 5px
+            padding: 7px 8px
+            font-size: 10px
+
+            + .account-signout
+                padding-top: 8px
+                border-top: 1px solid var(--line)
+                border-radius: 0 0 4px 4px
+
+    &-summary
+        padding: 7px 8px 9px
+        border-bottom: 1px solid var(--line)
+        color: var(--quiet)
+        font-size: 9px
+
+        strong
+            display: block
+            color: var(--text)
+            font-size: 11px
+            font-weight: 500
+
+    &-signout
+        margin-top: 5px
+        padding: 7px 8px
+        font-size: 10px
+
+.account-signout,
+.menu-item
+    width: 100%
+    border: 0
+    border-radius: 4px
+    background: transparent
+    color: var(--muted)
+    text-align: left
+
+    &:hover
+        background: var(--surface-hover)
+        color: var(--text)
+
+.pixel-icon
+    width: 16px
+    height: 16px
+    flex: 0 0 16px
+    display: block
+    shape-rendering: crispEdges
+
+.icon-sprite
+    position: absolute
+    width: 0
+    height: 0
+    overflow: hidden
+
+@media (max-width: config.$breakpoint-compact)
+    .status-label
+        display: none
+
+    .top-actions
+        gap: 8px
+
+@media (pointer: coarse)
+    .login,
+    .account-signout
+        min-height: 40px

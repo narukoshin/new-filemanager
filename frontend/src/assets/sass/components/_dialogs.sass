@@ -1,0 +1,232 @@
+@use "../config"
+@use "buttons"
+
+.preview
+    &-dialog
+        width: min(calc(100% - 32px), 720px)
+
+    &-shell
+        padding: 0
+
+    &-head
+        min-height: 54px
+        padding: 0 16px
+        border-bottom: 1px solid var(--line)
+        display: flex
+        align-items: center
+        justify-content: space-between
+        gap: 18px
+
+    &-heading
+        min-width: 0
+
+    &-title
+        margin: 0
+        color: var(--text)
+        font-size: 12px
+        font-weight: 500
+        overflow: hidden
+        text-overflow: ellipsis
+        white-space: nowrap
+
+    &-meta
+        margin: 2px 0 0
+        color: var(--quiet)
+        font-size: 9px
+
+    &-close
+        @include buttons.square
+
+        &:hover
+            @include buttons.hover
+
+    &-content
+        min-height: 310px
+        max-height: min(62vh, 560px)
+        overflow: auto
+        display: grid
+        place-items: center
+        background: linear-gradient(45deg, rgba(255,255,255,0.012) 25%, transparent 25%) 0 0 / 18px 18px, linear-gradient(-45deg, rgba(255,255,255,0.012) 25%, transparent 25%) 0 0 / 18px 18px, #09090a
+
+    &-image
+        display: block
+        max-width: 100%
+        max-height: min(58vh, 520px)
+        object-fit: contain
+
+    &-placeholder
+        padding: 28px
+        display: grid
+        justify-items: center
+        gap: 12px
+        color: var(--quiet)
+        font-size: 10px
+        text-align: center
+
+        .pixel-icon
+            width: 52px
+            height: 52px
+
+    &-text
+        width: 100%
+        min-height: 310px
+        margin: 0
+        padding: 22px
+        color: #bdb9c2
+        font: 11px/1.75 var(--font)
+        white-space: pre-wrap
+
+    &-foot
+        min-height: 48px
+        padding: 8px 16px
+        border-top: 1px solid var(--line)
+        display: flex
+        align-items: center
+        justify-content: flex-end
+        gap: 8px
+
+dialog
+    width: min(calc(100% - 32px), 430px)
+    padding: 0
+    border: 1px solid var(--line-strong)
+    border-radius: 8px
+    background: config.$color-surface
+    color: var(--text)
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7)
+
+    &::backdrop
+        background: rgba(0, 0, 0, 0.72)
+        backdrop-filter: blur(3px)
+
+.dialog
+    &-form
+        padding: 20px
+
+    &-kicker
+        margin: 0 0 7px
+        color: var(--accent)
+        font-size: 9px
+        letter-spacing: 0.08em
+        text-transform: uppercase
+
+    &-title
+        margin: 0
+        font-size: 17px
+        font-weight: 500
+        letter-spacing: -0.04em
+
+    &-copy
+        margin: 8px 0 18px
+        color: var(--muted)
+        font-size: 11px
+
+    &-actions
+        margin-top: 20px
+        display: flex
+        justify-content: flex-end
+        gap: 8px
+
+    &-button
+        @include buttons.frame(32px, 0 12px)
+        font-size: 10px
+
+        &:hover
+            @include buttons.hover
+
+        &.primary
+            border-color: config.$color-accent-dark
+            background: #160f12
+            color: #efabc0
+
+        &.danger
+            border-color: #693542
+            background: #1b0d11
+            color: config.$color-danger
+
+.field
+    margin-top: 13px
+    display: grid
+    gap: 6px
+    color: var(--muted)
+    font-size: 10px
+
+    &-input
+        width: 100%
+        min-height: 38px
+        padding: 0 11px
+        border: 1px solid var(--line)
+        border-radius: 5px
+        outline: 0
+        background: var(--bg)
+        color: var(--text)
+        font-size: 12px
+
+        &:focus
+            border-color: config.$color-accent-dark
+            box-shadow: 0 0 0 3px rgba(220, 125, 155, 0.055)
+
+    &[hidden]
+        display: none
+
+    &-error
+        min-height: 16px
+        margin: 8px 0 0
+        color: #d58191
+        font-size: 9px
+
+.security-note
+    margin: -8px 0 16px
+    padding: 8px 10px
+    border-left: 2px solid config.$color-purple-dark
+    background: rgba(143, 115, 183, 0.05)
+    color: var(--quiet)
+    font-size: 9px
+
+    code
+        color: config.$color-purple
+
+[hidden]
+    display: none !important
+
+.toast
+    position: fixed
+    z-index: 30
+    right: 22px
+    bottom: 22px
+    max-width: min(calc(100% - 44px), 360px)
+    padding: 10px 13px
+    border: 1px solid var(--line-strong)
+    border-radius: 6px
+    background: config.$color-surface-hover
+    color: var(--muted)
+    font-size: 10px
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5)
+
+    &[hidden]
+        display: none
+
+    strong
+        color: var(--text)
+        font-weight: 500
+
+@media (max-width: config.$breakpoint-mobile)
+    .preview
+        &-content,
+        &-text
+            min-height: 240px
+
+        &-text
+            padding: 16px
+
+@media (max-width: config.$breakpoint-compact)
+    .preview
+        &-head
+            padding: 0 12px
+
+        &-foot
+            padding: 8px 12px
+
+@media (pointer: coarse)
+    .preview-close
+        width: 40px
+        height: 40px

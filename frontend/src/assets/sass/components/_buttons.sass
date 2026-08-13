@@ -1,0 +1,29 @@
+@use "../config"
+
+// A respectable little frame for controls that insist on looking related.
+@mixin frame($min-height: 30px, $padding: 0 10px, $radius: config.$radius-medium, $border-color: var(--line), $background: transparent, $color: var(--muted))
+    min-height: $min-height
+    padding: $padding
+    border: 1px solid $border-color
+    border-radius: $radius
+    background: $background
+    color: $color
+
+// Square controls receive the same manners, only with stricter geometry.
+@mixin square($size: 28px, $radius: config.$radius-small, $padding: 0, $border-color: var(--line), $color: var(--muted))
+    width: $size
+    height: $size
+    padding: $padding
+    border: 1px solid $border-color
+    border-radius: $radius
+    background: transparent
+    color: $color
+
+// The familiar hover response, with an optional surface for louder buttons.
+@mixin hover($background: null)
+    border-color: var(--line-strong)
+
+    @if $background
+        background: $background
+
+    color: var(--text)

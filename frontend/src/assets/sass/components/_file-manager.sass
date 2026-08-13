@@ -1,0 +1,699 @@
+@use "../config"
+@use "buttons"
+
+.hero
+    padding: 58px 0 40px
+
+.eyebrow
+    margin: 0 0 14px
+    color: var(--muted)
+    font-size: 10px
+    letter-spacing: 0.02em
+
+    &::before
+        content: "["
+        margin-right: 1px
+        color: var(--accent)
+
+    &::after
+        content: "]"
+        margin-left: 1px
+        color: var(--accent)
+
+h1
+    margin: 0
+    font-size: clamp(34px, 5vw, 56px)
+    line-height: 1.04
+    font-weight: 450
+    letter-spacing: -0.06em
+
+.title-prefix
+    margin-right: 0.2em
+    color: var(--quiet)
+    font-size: 0.48em
+    font-weight: 400
+    letter-spacing: 0
+    vertical-align: 0.38em
+
+.accent
+    color: var(--accent)
+
+.intro
+    max-width: 560px
+    margin: 15px 0 0
+    color: var(--muted)
+    font-size: 12px
+
+    &::before
+        content: "// "
+        color: var(--quiet)
+
+.toolbar
+    min-height: 58px
+    border-top: 1px solid var(--line-strong)
+    border-bottom: 1px solid var(--line)
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 20px
+
+.file-browser
+    position: relative
+
+.path
+    min-width: 0
+    display: flex
+    align-items: center
+    gap: 7px
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+
+.path-prefix
+    color: var(--quiet)
+
+.back-button
+    @include buttons.square(27px)
+    flex: 0 0 27px
+
+    &:hover:not(:disabled)
+        @include buttons.hover(var(--surface-hover))
+
+    &:disabled
+        cursor: default
+        opacity: 0.32
+
+.breadcrumbs
+    min-width: 0
+    display: flex
+    align-items: center
+    overflow: hidden
+
+.breadcrumb
+    min-width: 0
+    padding: 3px 2px
+    border: 0
+    background: transparent
+    color: var(--quiet)
+    font-size: 11px
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+
+    &:hover
+        color: config.$color-accent-light
+
+    &[aria-current="page"]
+        color: var(--text)
+        cursor: default
+
+.breadcrumb-separator
+    margin: 0 3px
+    color: var(--line-strong)
+    flex: 0 0 auto
+
+.tools
+    min-width: 0
+    display: flex
+    align-items: center
+    gap: 12px
+
+.search
+    position: relative
+    width: clamp(170px, 20vw, 230px)
+    flex: 0 1 230px
+
+    &:focus-within .search-key
+        opacity: 0
+
+.search-icon
+    position: absolute
+    top: 50%
+    left: 10px
+    width: 16px
+    height: 16px
+    transform: translateY(-50%)
+    color: var(--quiet)
+    pointer-events: none
+
+    .pixel-icon
+        width: 100%
+        height: 100%
+        --icon-main: var(--quiet)
+        --icon-light: var(--muted)
+        --icon-dark: var(--line-strong)
+
+.search-input
+    width: 100%
+    min-height: 30px
+    padding: 0 31px
+    border: 1px solid var(--line)
+    border-radius: 5px
+    outline: none
+    background: rgba(13, 13, 15, 0.72)
+    color: var(--text)
+    font-size: 11px
+    transition: config.$transition-fast
+
+    &::placeholder
+        color: var(--quiet)
+
+    &:focus
+        border-color: #5a3944
+        background: var(--surface)
+        box-shadow: 0 0 0 3px rgba(220, 125, 155, 0.055)
+
+    &:not(:placeholder-shown) + .search-key
+        opacity: 0
+
+.search-key
+    position: absolute
+    top: 50%
+    right: 8px
+    min-width: 15px
+    height: 17px
+    border: 1px solid var(--line)
+    border-radius: 3px
+    display: grid
+    place-items: center
+    transform: translateY(-50%)
+    color: var(--quiet)
+    font-size: 9px
+    line-height: 1
+    pointer-events: none
+    transition: opacity 140ms ease
+
+.actions
+    display: flex
+    align-items: center
+    gap: 8px
+    flex: 0 0 auto
+
+.action
+    @include buttons.frame
+    display: inline-flex
+    align-items: center
+    gap: 7px
+    transition: config.$transition-fast
+
+    &:hover
+        @include buttons.hover(var(--surface-hover))
+
+    &.primary
+        border-color: #3d2a31
+        color: config.$color-accent-light
+
+        &:hover
+            border-color: config.$color-accent-dark
+            background: #160f12
+            color: #f0b2c5
+
+        .pixel-icon
+            --icon-main: #bc6984
+            --icon-light: #efb0c4
+            --icon-dark: #704052
+
+    &:disabled
+        cursor: not-allowed
+        opacity: 0.42
+
+        &:hover
+            border-color: var(--line)
+            background: transparent
+            color: var(--muted)
+
+    .pixel-icon
+        --icon-main: #9474b8
+        --icon-light: #c3a0dc
+        --icon-dark: var(--accent)
+
+.file-head,
+.file-row
+    display: grid
+    grid-template-columns: minmax(0, 1fr) 110px 150px
+    gap: 20px
+    align-items: center
+    padding: 0 12px
+
+body[data-auth="true"] .file-head,
+body[data-auth="true"] .file-row
+    grid-template-columns: minmax(0, 1fr) 110px 150px 54px
+
+.file-head
+    min-height: 38px
+    border-bottom: 1px solid var(--line)
+    color: var(--quiet)
+    font-size: 9px
+    letter-spacing: 0.06em
+    text-transform: lowercase
+
+    > :last-child
+        display: none
+        text-align: right
+
+.sort-button
+    width: max-content
+    padding: 5px 0
+    border: 0
+    background: transparent
+    color: inherit
+    font: inherit
+    letter-spacing: inherit
+    text-transform: inherit
+
+    &:hover
+        color: var(--muted)
+
+.sort-indicator
+    display: inline-block
+    width: 9px
+    margin-left: 3px
+    color: var(--accent)
+
+body[data-auth="true"] .file-head > :last-child
+    display: block
+
+.file-list
+    border-bottom: 1px solid var(--line-strong)
+
+.file-row
+    width: 100%
+    min-height: 56px
+    border-bottom: 1px solid var(--line)
+    background: transparent
+    color: inherit
+    position: relative
+    transition: background 140ms ease
+
+    &[hidden]
+        display: none
+
+    &:has(+ .empty-state)
+        border-bottom: 0
+
+    &:hover,
+    &:focus-within
+        background: linear-gradient(90deg, rgba(220, 125, 155, 0.055), rgba(220, 125, 155, 0.012) 65%, transparent)
+
+        .filename
+            color: #fff
+
+        .icon
+            transform: translateX(2px)
+            filter: brightness(1.12)
+
+    &:has(.file-open:focus-visible)
+        outline: 1px solid config.$color-accent-dark
+        outline-offset: -1px
+
+.file-open
+    min-width: 0
+    min-height: 55px
+    padding: 0
+    border: 0
+    outline: 0
+    background: transparent
+    color: inherit
+    text-align: left
+
+.name
+    min-width: 0
+    display: flex
+    align-items: center
+    gap: 12px
+
+.icon
+    width: 20px
+    height: 20px
+    flex: 0 0 20px
+    display: grid
+    place-items: center
+    color: var(--quiet)
+    transition: color 140ms ease, transform 140ms ease
+
+    svg
+        width: 16px
+        height: 16px
+
+.filename
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+    letter-spacing: -0.02em
+    transition: color 140ms ease
+
+.folder
+    .filename
+        color: #f0eeeb
+
+    .icon
+        --icon-main: #8f73b7
+        --icon-light: #{config.$color-purple}
+        --icon-dark: #{config.$color-purple-dark}
+        --icon-detail: var(--accent)
+
+.protected-badge
+    min-height: 20px
+    padding: 0 6px 0 4px
+    border: 1px solid #3d2a31
+    border-radius: 4px
+    display: inline-flex
+    align-items: center
+    gap: 4px
+    flex: 0 0 auto
+    color: #b86f86
+    font-size: 8px
+    letter-spacing: 0.03em
+
+    .pixel-icon
+        width: 12px
+        height: 12px
+        flex-basis: 12px
+        --icon-main: #b86f86
+        --icon-light: #e3a0b5
+        --icon-dark: #603746
+
+    &.unlocked
+        border-color: #29413c
+        color: #6da99c
+
+        .pixel-icon
+            --icon-main: #6da99c
+            --icon-light: #9bcac0
+            --icon-dark: #365e56
+
+.archive-file
+    .icon
+        --icon-main: #c99536
+        --icon-light: #edc15b
+        --icon-dark: #725121
+        --icon-detail: #312719
+
+.text-file
+    .icon
+        --icon-main: #898394
+        --icon-light: #b8b0c1
+        --icon-dark: #4c4854
+        --icon-detail: #625a70
+
+.image-file
+    .icon
+        --icon-main: #559d97
+        --icon-light: #85c9c0
+        --icon-dark: #285e5b
+        --icon-detail: var(--accent)
+
+.database-file
+    .icon
+        --icon-main: #607cae
+        --icon-light: #8fa8db
+        --icon-dark: #35486f
+        --icon-detail: #252d42
+
+.size,
+.modified
+    color: var(--muted)
+    font-size: 11px
+
+.row-actions
+    position: relative
+    display: none
+    justify-self: end
+
+body[data-auth="true"] .row-actions
+    display: block
+
+.more-button
+    @include buttons.square($padding: 0 0 6px, $border-color: transparent, $color: var(--quiet))
+    font-size: 16px
+    letter-spacing: 1px
+    line-height: 1
+
+    &:hover,
+    &[aria-expanded="true"]
+        border-color: var(--line)
+        background: var(--surface-hover)
+        color: var(--text)
+
+.row-menu
+    position: absolute
+    z-index: 10
+    top: calc(100% + 5px)
+    right: 0
+    width: 142px
+    padding: 6px
+    border: 1px solid var(--line-strong)
+    border-radius: 6px
+    background: #0e0e10
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.48)
+
+    &[hidden]
+        display: none
+
+.menu-item
+    padding: 7px 8px
+    display: flex
+    align-items: center
+    justify-content: space-between
+    font-size: 10px
+
+    &.danger
+        color: #be7180
+
+        &:hover
+            color: config.$color-danger
+            background: rgba(220, 125, 155, 0.07)
+
+.menu-symbol
+    color: var(--quiet)
+
+.empty-state
+    min-height: 110px
+    display: grid
+    place-items: center
+    color: var(--quiet)
+    font-size: 11px
+    text-align: center
+
+    &[hidden]
+        display: none
+
+.empty-query
+    color: var(--muted)
+
+.drop-overlay
+    position: absolute
+    z-index: 8
+    inset: 0
+    border: 1px dashed config.$color-focus
+    border-radius: 7px
+    background: rgba(10, 10, 11, 0.9)
+    display: grid
+    place-items: center
+    pointer-events: none
+
+    &[hidden]
+        display: none
+
+.drop-message
+    display: grid
+    justify-items: center
+    gap: 9px
+    color: config.$color-accent-light
+    font-size: 11px
+
+    .pixel-icon
+        width: 28px
+        height: 28px
+        --icon-main: #bc6984
+        --icon-light: #efb0c4
+        --icon-dark: #704052
+
+.upload
+    &-panel
+        padding: 10px 12px
+        border-bottom: 1px solid var(--line)
+        display: grid
+        gap: 7px
+        background: rgba(13, 13, 15, 0.72)
+
+        &[hidden]
+            display: none
+
+        &-head
+            display: flex
+            justify-content: space-between
+            color: var(--quiet)
+            font-size: 9px
+
+    &-clear
+        padding: 0
+        border: 0
+        background: transparent
+        color: var(--quiet)
+        font-size: 9px
+
+        &:hover
+            color: var(--muted)
+
+    &-item
+        display: grid
+        grid-template-columns: minmax(0, 1fr) 46px
+        gap: 5px 12px
+        align-items: center
+        color: var(--muted)
+        font-size: 9px
+
+        &-name
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+
+        &-status
+            color: var(--quiet)
+            text-align: right
+
+        &.failed
+            .upload-item-status
+                color: #d58191
+
+            .upload-progress
+                background: #924f5d
+
+        &.complete
+            .upload-item-status
+                color: #6da99c
+
+            .upload-progress
+                background: #559d97
+
+    &-track
+        grid-column: 1 / -1
+        height: 2px
+        background: var(--line)
+        overflow: hidden
+
+    &-progress
+        width: 0
+        height: 100%
+        background: linear-gradient(90deg, #8f73b7, var(--accent))
+        transition: width 100ms linear
+
+#upload-list
+    display: grid
+    gap: 7px
+
+.footer
+    padding-top: 18px
+    display: flex
+    justify-content: space-between
+    gap: 20px
+    color: var(--quiet)
+    font-size: 10px
+
+    &-command
+        display: inline-flex
+        align-items: center
+        gap: 0.7ch
+        color: var(--muted)
+
+        &::before
+            content: ">"
+            margin-right: 3px
+            color: var(--accent)
+
+@media (max-width: config.$breakpoint-mobile)
+    .hero
+        padding: 48px 0 34px
+
+    .toolbar
+        padding: 13px 0
+        align-items: flex-start
+        flex-direction: column
+
+    .path
+        width: 100%
+
+    .breadcrumbs
+        flex: 1 1 auto
+
+    .tools
+        width: 100%
+
+    .search
+        width: auto
+        flex: 1 1 auto
+
+    .file-head,
+    .file-row
+        grid-template-columns: minmax(0, 1fr) 88px
+        gap: 14px
+
+    body[data-auth="true"] .file-head,
+    body[data-auth="true"] .file-row
+        grid-template-columns: minmax(0, 1fr) 88px 54px
+
+    .file-head > :nth-child(3),
+    .file-row > .modified
+        display: none
+
+    .footer
+        flex-direction: column
+        gap: 5px
+
+@media (max-width: config.$breakpoint-compact)
+    .intro
+        max-width: 36ch
+
+    .action span.label
+        display: none
+
+    .action
+        width: 32px
+        padding: 0
+        justify-content: center
+
+    .tools
+        gap: 7px
+
+    .actions
+        gap: 6px
+
+    .path-prefix
+        display: none
+
+    .breadcrumb
+        max-width: 110px
+
+    .file-head,
+    .file-row
+        grid-template-columns: minmax(0, 1fr) 70px
+
+    body[data-auth="true"] .file-head,
+    body[data-auth="true"] .file-row
+        grid-template-columns: minmax(0, 1fr) 70px 54px
+
+    .protected-badge span
+        display: none
+
+    .protected-badge
+        width: 20px
+        padding: 0 3px
+
+    .upload-item
+        grid-template-columns: minmax(0, 1fr) 38px
+
+@media (pointer: coarse)
+    .action,
+    .search-input
+        min-height: 40px
+
+    .back-button,
+    .more-button
+        width: 40px
+        height: 40px
+
+    .breadcrumb,
+    .menu-item
+        min-height: 40px
