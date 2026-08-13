@@ -122,6 +122,7 @@
       padding: 0 11px;
       border: 1px solid var(--line);
       border-radius: 5px;
+      background: transparent;
       display: inline-flex;
       align-items: center;
       gap: 7px;
@@ -131,6 +132,61 @@
 
     .login:hover {
       border-color: var(--line-strong);
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .account {
+      position: relative;
+    }
+
+    .account-menu {
+      position: absolute;
+      z-index: 12;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 190px;
+      padding: 7px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #0e0e10;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .account-menu[hidden] { display: none; }
+
+    .account-summary {
+      padding: 7px 8px 9px;
+      border-bottom: 1px solid var(--line);
+      color: var(--quiet);
+      font-size: 9px;
+    }
+
+    .account-summary strong {
+      display: block;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .account-signout,
+    .menu-item {
+      width: 100%;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .account-signout {
+      margin-top: 5px;
+      padding: 7px 8px;
+      font-size: 10px;
+    }
+
+    .account-signout:hover,
+    .menu-item:hover {
       background: var(--surface-hover);
       color: var(--text);
     }
@@ -344,6 +400,17 @@
       color: #f0b2c5;
     }
 
+    .action:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .action:disabled:hover {
+      border-color: var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+
     .action .pixel-icon {
       --icon-main: #9474b8;
       --icon-light: #c3a0dc;
@@ -365,6 +432,11 @@
       padding: 0 12px;
     }
 
+    body[data-auth="true"] .file-head,
+    body[data-auth="true"] .file-row {
+      grid-template-columns: minmax(0, 1fr) 110px 150px 54px;
+    }
+
     .file-head {
       min-height: 38px;
       border-bottom: 1px solid var(--line);
@@ -373,6 +445,13 @@
       letter-spacing: 0.06em;
       text-transform: lowercase;
     }
+
+    .file-head > :last-child {
+      display: none;
+      text-align: right;
+    }
+
+    body[data-auth="true"] .file-head > :last-child { display: block; }
 
     .file-list {
       border-bottom: 1px solid var(--line-strong);
@@ -383,15 +462,9 @@
     .file-row {
       width: 100%;
       min-height: 56px;
-      border-top: 0;
-      border-right: 0;
       border-bottom: 1px solid var(--line);
-      border-left: 0;
-      appearance: none;
       background: transparent;
       color: inherit;
-      font: inherit;
-      text-align: left;
       position: relative;
       transition: background 140ms ease;
     }
@@ -399,13 +472,24 @@
     .file-row:last-of-type { border-bottom: 0; }
 
     .file-row:hover,
-    .file-row:focus-visible {
+    .file-row:focus-within {
       background: linear-gradient(90deg, rgba(220, 125, 155, 0.055), rgba(220, 125, 155, 0.012) 65%, transparent);
     }
 
-    .file-row:focus-visible {
+    .file-row:has(.file-open:focus-visible) {
       outline: 1px solid #6e3d4d;
       outline-offset: -1px;
+    }
+
+    .file-open {
+      min-width: 0;
+      min-height: 55px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
     }
 
     .name {
@@ -477,10 +561,10 @@
     }
 
     .file-row:hover .filename,
-    .file-row:focus-visible .filename { color: #fff; }
+    .file-row:focus-within .filename { color: #fff; }
 
     .file-row:hover .icon,
-    .file-row:focus-visible .icon {
+    .file-row:focus-within .icon {
       transform: translateX(2px);
       filter: brightness(1.12);
     }
@@ -490,6 +574,62 @@
       color: var(--muted);
       font-size: 11px;
     }
+
+    .row-actions {
+      position: relative;
+      display: none;
+      justify-self: end;
+    }
+
+    body[data-auth="true"] .row-actions { display: block; }
+
+    .more-button {
+      width: 28px;
+      height: 28px;
+      padding: 0 0 6px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--quiet);
+      font-size: 16px;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .more-button:hover,
+    .more-button[aria-expanded="true"] {
+      border-color: var(--line);
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+
+    .row-menu {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 5px);
+      right: 0;
+      width: 142px;
+      padding: 6px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #0e0e10;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.48);
+    }
+
+    .row-menu[hidden] { display: none; }
+
+    .menu-item {
+      padding: 7px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+    }
+
+    .menu-item.danger { color: #be7180; }
+    .menu-item.danger:hover { color: #ef9aaa; background: rgba(220, 125, 155, 0.07); }
+
+    .menu-symbol { color: var(--quiet); }
 
     .empty-state {
       min-height: 110px;
@@ -502,6 +642,118 @@
 
     .empty-state[hidden] { display: none; }
     .empty-query { color: var(--muted); }
+
+    dialog {
+      width: min(calc(100% - 32px), 430px);
+      padding: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #0d0d0f;
+      color: var(--text);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(3px);
+    }
+
+    .dialog-form { padding: 20px; }
+
+    .dialog-kicker {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dialog-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.04em;
+    }
+
+    .dialog-copy {
+      margin: 8px 0 18px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .field {
+      margin-top: 13px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .field-input {
+      width: 100%;
+      min-height: 38px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      outline: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .field-input:focus {
+      border-color: #6e3d4d;
+      box-shadow: 0 0 0 3px rgba(220, 125, 155, 0.055);
+    }
+
+    .dialog-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .dialog-button {
+      min-height: 32px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .dialog-button:hover { border-color: var(--line-strong); color: var(--text); }
+
+    .dialog-button.primary {
+      border-color: #6e3d4d;
+      background: #160f12;
+      color: #efabc0;
+    }
+
+    .dialog-button.danger {
+      border-color: #693542;
+      background: #1b0d11;
+      color: #ef9aaa;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 30;
+      right: 22px;
+      bottom: 22px;
+      max-width: min(calc(100% - 44px), 360px);
+      padding: 10px 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #111114;
+      color: var(--muted);
+      font-size: 10px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
+    }
+
+    .toast[hidden] { display: none; }
+    .toast strong { color: var(--text); font-weight: 500; }
 
     .footer {
       padding-top: 18px;
@@ -541,8 +793,13 @@
         gap: 14px;
       }
 
-      .file-head > :last-child,
-      .file-row > :last-child { display: none; }
+      body[data-auth="true"] .file-head,
+      body[data-auth="true"] .file-row {
+        grid-template-columns: minmax(0, 1fr) 88px 54px;
+      }
+
+      .file-head > :nth-child(3),
+      .file-row > .modified { display: none; }
 
       .footer {
         flex-direction: column;
@@ -560,6 +817,11 @@
       .actions { gap: 6px; }
       .file-head,
       .file-row { grid-template-columns: minmax(0, 1fr) 70px; }
+
+      body[data-auth="true"] .file-head,
+      body[data-auth="true"] .file-row {
+        grid-template-columns: minmax(0, 1fr) 70px 54px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -632,6 +894,13 @@
         <path fill="var(--icon-dark, #6e3d4d)" d="M11 8h1v1h-1z"/>
         <path fill="#77cbb9" d="M1 7h5V5l3 3-3 3V9H1z"/>
       </symbol>
+
+      <symbol id="icon-account" viewBox="0 0 16 16">
+        <path fill="var(--icon-dark, #6e3d4d)" d="M5 2h6v1h1v5h-1v1H5V8H4V3h1z"/>
+        <path fill="var(--icon-light, #e6a0b6)" d="M6 3h4v1h1v3h-1v1H6V7H5V4h1z"/>
+        <path fill="var(--icon-main, #dc7d9b)" d="M4 10h8v1h2v4H2v-4h2z"/>
+        <path fill="#77cbb9" d="M6 5h1v1H6zM9 5h1v1H9z"/>
+      </symbol>
     </defs>
   </svg>
 
@@ -647,12 +916,18 @@
       <div class="top-actions">
         <div class="status">
           <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-label">public node</span>
+          <span class="status-label" id="status-label">public node</span>
         </div>
-        <a class="login" href="/login">
-          <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-login"/></svg>
-          <span>log in</span>
-        </a>
+        <div class="account">
+          <button class="login" id="auth-button" type="button" aria-haspopup="dialog" aria-expanded="false">
+            <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use id="auth-icon" href="#icon-login"/></svg>
+            <span id="auth-label">log in</span>
+          </button>
+          <div class="account-menu" id="account-menu" hidden>
+            <div class="account-summary">signed in as<strong id="account-name">naru</strong></div>
+            <button class="account-signout" id="signout-button" type="button">← sign out</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -679,14 +954,15 @@
           </label>
 
           <div class="actions">
-            <button class="action" type="button" aria-label="New folder">
+            <button class="action" id="new-folder-button" type="button" aria-label="New folder" disabled title="Log in to create folders">
               <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-new-folder"/></svg>
               <span class="label">folder</span>
             </button>
-            <button class="action primary" type="button" aria-label="Upload file">
+            <button class="action primary" id="upload-button" type="button" aria-label="Upload file" disabled title="Log in to upload files">
               <svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-upload"/></svg>
               <span class="label">upload</span>
             </button>
+            <input id="file-picker" type="file" multiple hidden />
           </div>
         </div>
       </div>
@@ -695,75 +971,10 @@
         <span>name</span>
         <span>size</span>
         <span>modified</span>
+        <span>actions</span>
       </div>
 
-      <div class="file-list">
-        <button class="file-row folder" type="button" data-file data-name="builds">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-folder"/></svg>
-            </span>
-            <span class="filename">builds</span>
-          </span>
-          <span class="size">—</span>
-          <span class="modified">today, 02:14</span>
-        </button>
-
-        <button class="file-row folder" type="button" data-file data-name="screenshots">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-folder"/></svg>
-            </span>
-            <span class="filename">screenshots</span>
-          </span>
-          <span class="size">—</span>
-          <span class="modified">08 aug</span>
-        </button>
-
-        <button class="file-row archive-file" type="button" data-file data-name="therxwold-release.zip">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-archive"/></svg>
-            </span>
-            <span class="filename">therxwold-release.zip</span>
-          </span>
-          <span class="size">18.4 mb</span>
-          <span class="modified">07 aug</span>
-        </button>
-
-        <button class="file-row text-file" type="button" data-file data-name="notes.txt">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-text"/></svg>
-            </span>
-            <span class="filename">notes.txt</span>
-          </span>
-          <span class="size">4.2 kb</span>
-          <span class="modified">02 aug</span>
-        </button>
-
-        <button class="file-row image-file" type="button" data-file data-name="void_004.png">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-image"/></svg>
-            </span>
-            <span class="filename">void_004.png</span>
-          </span>
-          <span class="size">812 kb</span>
-          <span class="modified">28 jul</span>
-        </button>
-
-        <button class="file-row database-file" type="button" data-file data-name="archive.db">
-          <span class="name">
-            <span class="icon" aria-hidden="true">
-              <svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-database"/></svg>
-            </span>
-            <span class="filename">archive.db</span>
-          </span>
-          <span class="size">2.1 mb</span>
-          <span class="modified">13 jul</span>
-        </button>
-
+      <div class="file-list" id="file-list">
         <div class="empty-state" id="empty-state" hidden>
           <span>no files matching <span class="empty-query" id="empty-query"></span></span>
         </div>
@@ -771,51 +982,396 @@
     </section>
 
     <footer class="footer">
-      <span class="footer-command"><span id="visible-count">6</span> <span id="entry-label">entries</span> / 21.3 mb</span>
+      <span class="footer-command"><span id="visible-count">6</span> <span id="entry-label">entries</span> / <span id="visible-size">21.3 mb</span></span>
       <span>ÞERXWOLD // FILE NODE 01</span>
     </footer>
   </main>
 
+  <dialog id="login-dialog">
+    <form class="dialog-form" id="login-form">
+      <p class="dialog-kicker">private access</p>
+      <h2 class="dialog-title">log in to file node 01</h2>
+      <p class="dialog-copy">Frontend preview: any non-empty credentials unlock file management for this session.</p>
+      <label class="field">username
+        <input class="field-input" id="username" name="username" autocomplete="username" required />
+      </label>
+      <label class="field">password
+        <input class="field-input" name="password" type="password" autocomplete="current-password" required />
+      </label>
+      <div class="dialog-actions">
+        <button class="dialog-button" type="button" data-close="login-dialog">cancel</button>
+        <button class="dialog-button primary" type="submit">log in →</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="name-dialog">
+    <form class="dialog-form" id="name-form">
+      <p class="dialog-kicker" id="name-kicker">file action</p>
+      <h2 class="dialog-title" id="name-title">rename item</h2>
+      <p class="dialog-copy" id="name-copy">Choose a new name.</p>
+      <label class="field"><span id="name-label">name</span>
+        <input class="field-input" id="name-input" required maxlength="120" />
+      </label>
+      <div class="dialog-actions">
+        <button class="dialog-button" type="button" data-close="name-dialog">cancel</button>
+        <button class="dialog-button primary" id="name-submit" type="submit">save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="delete-dialog">
+    <form class="dialog-form" id="delete-form">
+      <p class="dialog-kicker">destructive action</p>
+      <h2 class="dialog-title">delete this item?</h2>
+      <p class="dialog-copy">This will remove <strong id="delete-name"></strong> from the current frontend session.</p>
+      <div class="dialog-actions">
+        <button class="dialog-button" type="button" data-close="delete-dialog">cancel</button>
+        <button class="dialog-button danger" type="submit">delete permanently</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
   <script>
+    const entries = [
+      { id: 1, name: "builds", type: "folder", size: 0, modified: "today, 02:14" },
+      { id: 2, name: "screenshots", type: "folder", size: 0, modified: "08 aug" },
+      { id: 3, name: "therxwold-release.zip", type: "archive", size: 18_400_000, modified: "07 aug" },
+      { id: 4, name: "notes.txt", type: "text", size: 4_200, modified: "02 aug" },
+      { id: 5, name: "void_004.png", type: "image", size: 812_000, modified: "28 jul" },
+      { id: 6, name: "archive.db", type: "database", size: 2_100_000, modified: "13 jul" }
+    ];
+
+    const typeDetails = {
+      folder: { className: "folder", icon: "folder" },
+      archive: { className: "archive-file", icon: "archive" },
+      text: { className: "text-file", icon: "text" },
+      image: { className: "image-file", icon: "image" },
+      database: { className: "database-file", icon: "database" },
+      generic: { className: "text-file", icon: "text" }
+    };
+
+    const fileList = document.querySelector("#file-list");
     const searchInput = document.querySelector("#file-search");
-    const files = [...document.querySelectorAll("[data-file]")];
     const emptyState = document.querySelector("#empty-state");
     const emptyQuery = document.querySelector("#empty-query");
     const visibleCount = document.querySelector("#visible-count");
+    const visibleSize = document.querySelector("#visible-size");
     const entryLabel = document.querySelector("#entry-label");
+    const authButton = document.querySelector("#auth-button");
+    const authIcon = document.querySelector("#auth-icon");
+    const authLabel = document.querySelector("#auth-label");
+    const statusLabel = document.querySelector("#status-label");
+    const accountMenu = document.querySelector("#account-menu");
+    const accountName = document.querySelector("#account-name");
+    const signoutButton = document.querySelector("#signout-button");
+    const newFolderButton = document.querySelector("#new-folder-button");
+    const uploadButton = document.querySelector("#upload-button");
+    const filePicker = document.querySelector("#file-picker");
+    const loginDialog = document.querySelector("#login-dialog");
+    const loginForm = document.querySelector("#login-form");
+    const usernameInput = document.querySelector("#username");
+    const nameDialog = document.querySelector("#name-dialog");
+    const nameForm = document.querySelector("#name-form");
+    const nameKicker = document.querySelector("#name-kicker");
+    const nameTitle = document.querySelector("#name-title");
+    const nameCopy = document.querySelector("#name-copy");
+    const nameInput = document.querySelector("#name-input");
+    const nameSubmit = document.querySelector("#name-submit");
+    const deleteDialog = document.querySelector("#delete-dialog");
+    const deleteForm = document.querySelector("#delete-form");
+    const deleteName = document.querySelector("#delete-name");
+    const toast = document.querySelector("#toast");
+
+    let isAuthenticated = false;
+    let activeEntryId = null;
+    let nameMode = "rename";
+    let nextId = 7;
+    let toastTimer;
+
+    function formatSize(bytes) {
+      if (!bytes) return "—";
+      if (bytes < 1_000_000) return `${(bytes / 1_000).toFixed(bytes < 10_000 ? 1 : 0)} kb`;
+      return `${(bytes / 1_000_000).toFixed(1)} mb`;
+    }
+
+    function getType(name) {
+      const extension = name.split(".").pop().toLowerCase();
+      if (["zip", "tar", "gz", "7z", "rar"].includes(extension)) return "archive";
+      if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) return "image";
+      if (["db", "sqlite", "sqlite3"].includes(extension)) return "database";
+      if (["txt", "md", "json", "html", "css", "js", "ts"].includes(extension)) return "text";
+      return "generic";
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      toast.innerHTML = message;
+      toast.hidden = false;
+      toastTimer = setTimeout(() => { toast.hidden = true; }, 2600);
+    }
+
+    function closeMenus() {
+      document.querySelectorAll(".row-menu").forEach((menu) => { menu.hidden = true; });
+      document.querySelectorAll(".more-button").forEach((button) => button.setAttribute("aria-expanded", "false"));
+    }
+
+    function makeMenuItem(label, symbol, command, danger = false) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `menu-item${danger ? " danger" : ""}`;
+      button.dataset.command = command;
+      button.innerHTML = `<span>${label}</span><span class="menu-symbol" aria-hidden="true">${symbol}</span>`;
+      return button;
+    }
+
+    function createRow(entry) {
+      const details = typeDetails[entry.type] || typeDetails.generic;
+      const row = document.createElement("div");
+      row.className = `file-row ${details.className}`;
+      row.dataset.file = "";
+      row.dataset.id = entry.id;
+      row.dataset.name = entry.name;
+
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "file-open";
+      openButton.setAttribute("aria-label", `${entry.type === "folder" ? "Open folder" : "Open file"} ${entry.name}`);
+
+      const name = document.createElement("span");
+      name.className = "name";
+      const icon = document.createElement("span");
+      icon.className = "icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML = `<svg class="pixel-icon" viewBox="0 0 16 16"><use href="#icon-${details.icon}"></use></svg>`;
+      const filename = document.createElement("span");
+      filename.className = "filename";
+      filename.textContent = entry.name;
+      name.append(icon, filename);
+      openButton.append(name);
+      openButton.addEventListener("click", () => showToast(`<strong>${entry.name}</strong> opened in preview`));
+
+      const size = document.createElement("span");
+      size.className = "size";
+      size.textContent = formatSize(entry.size);
+      const modified = document.createElement("span");
+      modified.className = "modified";
+      modified.textContent = entry.modified;
+
+      const actions = document.createElement("div");
+      actions.className = "row-actions";
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "more-button";
+      more.setAttribute("aria-label", `Actions for ${entry.name}`);
+      more.setAttribute("aria-haspopup", "menu");
+      more.setAttribute("aria-expanded", "false");
+      more.textContent = "…";
+      const menu = document.createElement("div");
+      menu.className = "row-menu";
+      menu.setAttribute("role", "menu");
+      menu.hidden = true;
+      if (entry.type !== "folder") menu.append(makeMenuItem("download", "↓", "download"));
+      menu.append(makeMenuItem("rename", "↗", "rename"));
+      menu.append(makeMenuItem("delete", "×", "delete", true));
+      more.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const willOpen = menu.hidden;
+        closeMenus();
+        menu.hidden = !willOpen;
+        more.setAttribute("aria-expanded", String(willOpen));
+      });
+      menu.addEventListener("click", (event) => {
+        const command = event.target.closest("[data-command]")?.dataset.command;
+        if (!command) return;
+        closeMenus();
+        handleCommand(command, entry.id);
+      });
+      actions.append(more, menu);
+      row.append(openButton, size, modified, actions);
+      return row;
+    }
+
+    function renderFiles() {
+      fileList.querySelectorAll("[data-file]").forEach((row) => row.remove());
+      entries.forEach((entry) => fileList.insertBefore(createRow(entry), emptyState));
+      filterFiles();
+    }
 
     function filterFiles() {
       const query = searchInput.value.trim().toLowerCase();
-      let matches = 0;
-
-      files.forEach((file) => {
-        const isMatch = file.dataset.name.toLowerCase().includes(query);
-        file.hidden = !isMatch;
-        if (isMatch) matches += 1;
+      const matchingEntries = entries.filter((entry) => entry.name.toLowerCase().includes(query));
+      document.querySelectorAll("[data-file]").forEach((row) => {
+        row.hidden = !row.dataset.name.toLowerCase().includes(query);
       });
-
-      visibleCount.textContent = matches;
-      entryLabel.textContent = matches === 1 ? "entry" : "entries";
-      emptyState.hidden = matches !== 0;
+      visibleCount.textContent = matchingEntries.length;
+      entryLabel.textContent = matchingEntries.length === 1 ? "entry" : "entries";
+      visibleSize.textContent = formatSize(matchingEntries.reduce((total, entry) => total + entry.size, 0));
+      emptyState.hidden = matchingEntries.length !== 0;
       emptyQuery.textContent = query ? `“${searchInput.value.trim()}”` : "";
     }
 
+    function setAuthenticated(value, username = "naru") {
+      isAuthenticated = value;
+      document.body.dataset.auth = String(value);
+      authLabel.textContent = value ? username : "log in";
+      authIcon.setAttribute("href", value ? "#icon-account" : "#icon-login");
+      accountName.textContent = username;
+      statusLabel.textContent = value ? "private access" : "public node";
+      authButton.setAttribute("aria-haspopup", value ? "menu" : "dialog");
+      newFolderButton.disabled = !value;
+      uploadButton.disabled = !value;
+      newFolderButton.title = value ? "Create a folder" : "Log in to create folders";
+      uploadButton.title = value ? "Upload files" : "Log in to upload files";
+      accountMenu.hidden = true;
+      closeMenus();
+    }
+
+    function openNameDialog(mode, entry = null) {
+      nameMode = mode;
+      activeEntryId = entry?.id ?? null;
+      nameKicker.textContent = mode === "rename" ? "file action" : "new directory";
+      nameTitle.textContent = mode === "rename" ? "rename item" : "create folder";
+      nameCopy.textContent = mode === "rename" ? `Rename “${entry.name}”.` : "Add a folder to the current path.";
+      nameSubmit.textContent = mode === "rename" ? "save name" : "create folder";
+      nameInput.value = mode === "rename" ? entry.name : "";
+      nameInput.setCustomValidity("");
+      nameDialog.showModal();
+      nameInput.focus();
+      nameInput.select();
+    }
+
+    function handleCommand(command, id) {
+      if (!isAuthenticated) return;
+      const entry = entries.find((item) => item.id === id);
+      if (!entry) return;
+      if (command === "rename") openNameDialog("rename", entry);
+      if (command === "delete") {
+        activeEntryId = id;
+        deleteName.textContent = `“${entry.name}”`;
+        deleteDialog.showModal();
+      }
+      if (command === "download") {
+        const blob = new Blob([`Frontend preview for ${entry.name}\n`], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = entry.name;
+        link.click();
+        URL.revokeObjectURL(url);
+        showToast(`downloading <strong>${entry.name}</strong>`);
+      }
+    }
+
+    function uniqueName(name) {
+      if (!entries.some((entry) => entry.name.toLowerCase() === name.toLowerCase())) return name;
+      const dot = name.lastIndexOf(".");
+      const stem = dot > 0 ? name.slice(0, dot) : name;
+      const extension = dot > 0 ? name.slice(dot) : "";
+      let index = 2;
+      while (entries.some((entry) => entry.name.toLowerCase() === `${stem}-${index}${extension}`.toLowerCase())) index += 1;
+      return `${stem}-${index}${extension}`;
+    }
+
+    authButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (!isAuthenticated) {
+        loginDialog.showModal();
+        usernameInput.focus();
+        return;
+      }
+      accountMenu.hidden = !accountMenu.hidden;
+      authButton.setAttribute("aria-expanded", String(!accountMenu.hidden));
+    });
+
+    loginForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!loginForm.reportValidity()) return;
+      const username = usernameInput.value.trim();
+      setAuthenticated(true, username);
+      loginDialog.close();
+      loginForm.reset();
+      showToast(`welcome back, <strong>${username}</strong>`);
+    });
+
+    signoutButton.addEventListener("click", () => {
+      setAuthenticated(false);
+      showToast("signed out · file actions locked");
+    });
+
+    newFolderButton.addEventListener("click", () => openNameDialog("create"));
+    uploadButton.addEventListener("click", () => filePicker.click());
+    filePicker.addEventListener("change", () => {
+      const uploaded = [...filePicker.files];
+      uploaded.forEach((file) => {
+        entries.push({ id: nextId++, name: uniqueName(file.name), type: getType(file.name), size: file.size, modified: "just now" });
+      });
+      if (uploaded.length) {
+        renderFiles();
+        showToast(`uploaded <strong>${uploaded.length}</strong> ${uploaded.length === 1 ? "file" : "files"}`);
+      }
+      filePicker.value = "";
+    });
+
+    nameForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const value = nameInput.value.trim();
+      const duplicate = entries.some((entry) => entry.name.toLowerCase() === value.toLowerCase() && entry.id !== activeEntryId);
+      nameInput.setCustomValidity(duplicate ? "An item with this name already exists." : "");
+      if (!nameForm.reportValidity()) return;
+      if (nameMode === "rename") {
+        const entry = entries.find((item) => item.id === activeEntryId);
+        const oldName = entry.name;
+        entry.name = value;
+        entry.type = entry.type === "folder" ? "folder" : getType(value);
+        entry.modified = "just now";
+        showToast(`renamed <strong>${oldName}</strong> to <strong>${value}</strong>`);
+      } else {
+        entries.unshift({ id: nextId++, name: value, type: "folder", size: 0, modified: "just now" });
+        showToast(`created folder <strong>${value}</strong>`);
+      }
+      nameDialog.close();
+      renderFiles();
+    });
+
+    deleteForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const index = entries.findIndex((entry) => entry.id === activeEntryId);
+      if (index < 0) return;
+      const [deleted] = entries.splice(index, 1);
+      deleteDialog.close();
+      renderFiles();
+      showToast(`deleted <strong>${deleted.name}</strong>`);
+    });
+
+    document.querySelectorAll("[data-close]").forEach((button) => {
+      button.addEventListener("click", () => document.querySelector(`#${button.dataset.close}`).close());
+    });
+
     searchInput.addEventListener("input", filterFiles);
+    document.addEventListener("click", () => {
+      closeMenus();
+      accountMenu.hidden = true;
+      authButton.setAttribute("aria-expanded", "false");
+    });
 
     document.addEventListener("keydown", (event) => {
       const isTyping = /input|textarea/i.test(document.activeElement.tagName);
-
-      if (event.key === "/" && !isTyping) {
+      if (event.key === "/" && !isTyping && !document.querySelector("dialog[open]")) {
         event.preventDefault();
         searchInput.focus();
       }
-
       if (event.key === "Escape" && document.activeElement === searchInput) {
         searchInput.value = "";
         filterFiles();
         searchInput.blur();
       }
     });
+
+    setAuthenticated(false);
+    renderFiles();
   </script>
 </body>
 </html>
