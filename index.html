@@ -545,6 +545,40 @@
       --icon-detail: var(--accent);
     }
 
+    .protected-badge {
+      min-height: 20px;
+      padding: 0 6px 0 4px;
+      border: 1px solid #3d2a31;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+      color: #b86f86;
+      font-size: 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .protected-badge .pixel-icon {
+      width: 12px;
+      height: 12px;
+      flex-basis: 12px;
+      --icon-main: #b86f86;
+      --icon-light: #e3a0b5;
+      --icon-dark: #603746;
+    }
+
+    .protected-badge.unlocked {
+      border-color: #29413c;
+      color: #6da99c;
+    }
+
+    .protected-badge.unlocked .pixel-icon {
+      --icon-main: #6da99c;
+      --icon-light: #9bcac0;
+      --icon-dark: #365e56;
+    }
+
     .archive-file .icon {
       --icon-main: #c99536;
       --icon-light: #edc15b;
@@ -718,6 +752,26 @@
       border-color: #6e3d4d;
       box-shadow: 0 0 0 3px rgba(220, 125, 155, 0.055);
     }
+
+    .field[hidden] { display: none; }
+
+    .field-error {
+      min-height: 16px;
+      margin: 8px 0 0;
+      color: #d58191;
+      font-size: 9px;
+    }
+
+    .security-note {
+      margin: -8px 0 16px;
+      padding: 8px 10px;
+      border-left: 2px solid #4b3a62;
+      background: rgba(143, 115, 183, 0.05);
+      color: var(--quiet);
+      font-size: 9px;
+    }
+
+    .security-note code { color: #c1a0dc; }
 
     .dialog-actions {
       margin-top: 20px;
@@ -918,6 +972,13 @@
         <path fill="var(--icon-main, #dc7d9b)" d="M4 10h8v1h2v4H2v-4h2z"/>
         <path fill="#77cbb9" d="M6 5h1v1H6zM9 5h1v1H9z"/>
       </symbol>
+
+      <symbol id="icon-lock" viewBox="0 0 16 16">
+        <path fill="var(--icon-dark, #603746)" d="M5 1h6v1h1v5h2v8H2V7h2V2h1zm1 2v4h4V3z"/>
+        <path fill="var(--icon-main, #b86f86)" d="M3 8h10v6H3z"/>
+        <path fill="var(--icon-light, #e3a0b5)" d="M4 8h8v1H4z"/>
+        <path fill="#24151a" d="M7 10h2v2H8v1H7z"/>
+      </symbol>
     </defs>
   </svg>
 
@@ -1018,6 +1079,45 @@
       <div class="dialog-actions">
         <button class="dialog-button" type="button" data-close="login-dialog">cancel</button>
         <button class="dialog-button primary" type="submit">log in →</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="unlock-dialog">
+    <form class="dialog-form" id="unlock-form">
+      <p class="dialog-kicker">protected folder</p>
+      <h2 class="dialog-title">unlock <span id="unlock-name"></span></h2>
+      <p class="dialog-copy">Enter the folder password to continue. It will remain unlocked for this session.</p>
+      <p class="security-note">Frontend preview password: <code>threshold</code></p>
+      <label class="field">folder password
+        <input class="field-input" id="unlock-password" type="password" autocomplete="off" required />
+      </label>
+      <p class="field-error" id="unlock-error" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button class="dialog-button" type="button" data-close="unlock-dialog">cancel</button>
+        <button class="dialog-button primary" type="submit">unlock →</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="security-dialog">
+    <form class="dialog-form" id="security-form">
+      <p class="dialog-kicker">folder security</p>
+      <h2 class="dialog-title" id="security-title">protect folder</h2>
+      <p class="dialog-copy" id="security-copy">Require a password before this folder can be opened.</p>
+      <label class="field" id="current-password-field" hidden>current password
+        <input class="field-input" id="current-password" type="password" autocomplete="off" />
+      </label>
+      <label class="field">new password
+        <input class="field-input" id="new-password" type="password" autocomplete="new-password" minlength="4" required />
+      </label>
+      <label class="field">confirm new password
+        <input class="field-input" id="confirm-password" type="password" autocomplete="new-password" minlength="4" required />
+      </label>
+      <p class="field-error" id="security-error" aria-live="polite"></p>
+      <div class="dialog-actions">
+        <button class="dialog-button" type="button" data-close="security-dialog">cancel</button>
+        <button class="dialog-button primary" id="security-submit" type="submit">protect folder</button>
       </div>
     </form>
   </dialog>
@@ -1147,7 +1247,7 @@
 
     const entries = [
       { id: 1, name: "builds", type: "folder", size: 0, modified: "today, 02:14" },
-      { id: 2, name: "screenshots", type: "folder", size: 0, modified: "08 aug" },
+      { id: 2, name: "screenshots", type: "folder", size: 0, modified: "08 aug", protected: true, password: "threshold", unlocked: false },
       { id: 3, name: "therxwold-release.zip", type: "archive", size: 18_400_000, modified: "07 aug" },
       { id: 4, name: "notes.txt", type: "text", size: 4_200, modified: "02 aug" },
       { id: 5, name: "void_004.png", type: "image", size: 812_000, modified: "28 jul" },
@@ -1183,6 +1283,21 @@
     const loginDialog = document.querySelector("#login-dialog");
     const loginForm = document.querySelector("#login-form");
     const usernameInput = document.querySelector("#username");
+    const unlockDialog = document.querySelector("#unlock-dialog");
+    const unlockForm = document.querySelector("#unlock-form");
+    const unlockName = document.querySelector("#unlock-name");
+    const unlockPassword = document.querySelector("#unlock-password");
+    const unlockError = document.querySelector("#unlock-error");
+    const securityDialog = document.querySelector("#security-dialog");
+    const securityForm = document.querySelector("#security-form");
+    const securityTitle = document.querySelector("#security-title");
+    const securityCopy = document.querySelector("#security-copy");
+    const currentPasswordField = document.querySelector("#current-password-field");
+    const currentPassword = document.querySelector("#current-password");
+    const newPassword = document.querySelector("#new-password");
+    const confirmPassword = document.querySelector("#confirm-password");
+    const securityError = document.querySelector("#security-error");
+    const securitySubmit = document.querySelector("#security-submit");
     const nameDialog = document.querySelector("#name-dialog");
     const nameForm = document.querySelector("#name-form");
     const nameKicker = document.querySelector("#name-kicker");
@@ -1198,6 +1313,7 @@
     let isAuthenticated = false;
     let activeEntryId = null;
     let nameMode = "rename";
+    let securityMode = "protect";
     let nextId = 7;
     let toastTimer;
 
@@ -1260,8 +1376,20 @@
       filename.className = "filename";
       filename.textContent = entry.name;
       name.append(icon, filename);
+      if (entry.type === "folder" && entry.protected) {
+        const badge = document.createElement("span");
+        badge.className = `protected-badge${entry.unlocked ? " unlocked" : ""}`;
+        badge.innerHTML = `<svg class="pixel-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#icon-lock"></use></svg><span>${entry.unlocked ? "unlocked" : "locked"}</span>`;
+        name.append(badge);
+      }
       openButton.append(name);
-      openButton.addEventListener("click", () => showToast(`<strong>${entry.name}</strong> opened in preview`));
+      openButton.addEventListener("click", () => {
+        if (entry.type === "folder" && entry.protected && !entry.unlocked) {
+          openUnlockDialog(entry);
+          return;
+        }
+        showToast(`<strong>${entry.name}</strong> opened in preview`);
+      });
 
       const size = document.createElement("span");
       size.className = "size";
@@ -1284,6 +1412,11 @@
       menu.setAttribute("role", "menu");
       menu.hidden = true;
       if (entry.type !== "folder") menu.append(makeMenuItem("download", "↓", "download"));
+      if (entry.type === "folder") {
+        if (entry.protected && entry.unlocked) menu.append(makeMenuItem("lock again", "⌁", "relock"));
+        if (entry.protected && !entry.unlocked) menu.append(makeMenuItem("unlock", "◇", "unlock"));
+        menu.append(makeMenuItem(entry.protected ? "change password" : "protect folder", "◆", entry.protected ? "change-password" : "protect"));
+      }
       menu.append(makeMenuItem("rename", "↗", "rename"));
       menu.append(makeMenuItem("delete", "×", "delete", true));
       more.addEventListener("click", (event) => {
@@ -1325,6 +1458,7 @@
 
     function setAuthenticated(value, username = "naru") {
       isAuthenticated = value;
+      if (!value) entries.forEach((entry) => { if (entry.protected) entry.unlocked = false; });
       document.body.dataset.auth = String(value);
       authLabel.textContent = value ? username : "log in";
       authIcon.setAttribute("href", value ? "#icon-account" : "#icon-login");
@@ -1337,6 +1471,32 @@
       uploadButton.title = value ? "Upload files" : "Log in to upload files";
       accountMenu.hidden = true;
       closeMenus();
+      if (fileList.querySelector("[data-file]")) renderFiles();
+    }
+
+    function openUnlockDialog(entry) {
+      activeEntryId = entry.id;
+      unlockName.textContent = `“${entry.name}”`;
+      unlockPassword.value = "";
+      unlockError.textContent = "";
+      unlockDialog.showModal();
+      unlockPassword.focus();
+    }
+
+    function openSecurityDialog(mode, entry) {
+      securityMode = mode;
+      activeEntryId = entry.id;
+      securityTitle.textContent = mode === "protect" ? "protect folder" : "change folder password";
+      securityCopy.textContent = mode === "protect"
+        ? `Require a password before “${entry.name}” can be opened.`
+        : `Replace the password for “${entry.name}”.`;
+      securitySubmit.textContent = mode === "protect" ? "protect folder" : "change password";
+      currentPasswordField.hidden = mode !== "change";
+      currentPassword.required = mode === "change";
+      securityForm.reset();
+      securityError.textContent = "";
+      securityDialog.showModal();
+      (mode === "change" ? currentPassword : newPassword).focus();
     }
 
     function openNameDialog(mode, entry = null) {
@@ -1358,6 +1518,14 @@
       const entry = entries.find((item) => item.id === id);
       if (!entry) return;
       if (command === "rename") openNameDialog("rename", entry);
+      if (command === "unlock") openUnlockDialog(entry);
+      if (command === "relock") {
+        entry.unlocked = false;
+        renderFiles();
+        showToast(`locked <strong>${entry.name}</strong>`);
+      }
+      if (command === "protect") openSecurityDialog("protect", entry);
+      if (command === "change-password") openSecurityDialog("change", entry);
       if (command === "delete") {
         activeEntryId = id;
         deleteName.textContent = `“${entry.name}”`;
@@ -1405,6 +1573,57 @@
       loginForm.reset();
       showToast(`welcome back, <strong>${username}</strong>`);
     });
+
+    unlockForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const entry = entries.find((item) => item.id === activeEntryId);
+      if (!entry) return;
+      if (unlockPassword.value !== entry.password) {
+        unlockError.textContent = "incorrect password · try again";
+        unlockPassword.select();
+        return;
+      }
+      entry.unlocked = true;
+      unlockDialog.close();
+      renderFiles();
+      showToast(`unlocked and opened <strong>${entry.name}</strong>`);
+    });
+
+    unlockPassword.addEventListener("input", () => { unlockError.textContent = ""; });
+
+    securityForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const entry = entries.find((item) => item.id === activeEntryId);
+      if (!entry) return;
+      securityError.textContent = "";
+      confirmPassword.setCustomValidity("");
+
+      if (securityMode === "change" && currentPassword.value !== entry.password) {
+        securityError.textContent = "the current password is incorrect";
+        currentPassword.select();
+        return;
+      }
+
+      if (newPassword.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity("Passwords do not match.");
+        securityError.textContent = "new passwords do not match";
+      }
+
+      if (!securityForm.reportValidity()) return;
+      entry.protected = true;
+      entry.password = newPassword.value;
+      entry.unlocked = true;
+      securityDialog.close();
+      renderFiles();
+      showToast(`${securityMode === "protect" ? "protected" : "updated password for"} <strong>${entry.name}</strong>`);
+    });
+
+    confirmPassword.addEventListener("input", () => {
+      confirmPassword.setCustomValidity("");
+      securityError.textContent = "";
+    });
+
+    currentPassword.addEventListener("input", () => { securityError.textContent = ""; });
 
     signoutButton.addEventListener("click", () => {
       setAuthenticated(false);
