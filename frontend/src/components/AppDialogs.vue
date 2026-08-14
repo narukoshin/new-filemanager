@@ -1,50 +1,192 @@
+<script setup lang="ts">
+    import { computed, nextTick, ref, watch } from "vue"
+    import type { FileManager } from "../composables/useFileManager"
+    import { typeDetails } from "../composables/fileManager/presentation"
+    import type { UserRole } from "../types/fileManager"
+    import { formatFileSize } from "../composables/fileManager/files"
+
+    const { manager } = defineProps<{ manager: FileManager }>()
+    const modal = ref<HTMLDialogElement | null>(null)
+    const username = ref("")
+    const loginPassword = ref("")
+    const unlockPassword = ref("")
+    const currentFolderPassword = ref("")
+    const newFolderPassword = ref("")
+    const confirmFolderPassword = ref("")
+    const name = ref("")
+    const managedUsername = ref("")
+    const managedRole = ref<UserRole>("editor")
+    const managedPassword = ref("")
+    const error = ref("")
+
+    const previewDetails = computed(() => {
+        const type = manager.activeEntry?.type ?? "generic"
+        return typeDetails[type] ?? typeDetails.generic
+    })
+
+    const previewMessage = computed(() => {
+        const entry = manager.activeEntry
+        if (!entry) return "preview unavailable"
+        return entry.type === "image"
+            ? "image preview placeholder · connect the storage URL later"
+            : `${entry.type} preview · ${formatFileSize(entry.size)}`
+    })
+
+    /** Restores clean form state whenever a different modal enters the scene. */
+    const resetDialogState = (): void => {
+        error.value = ""
+        username.value = ""
+        loginPassword.value = ""
+        unlockPassword.value = ""
+        currentFolderPassword.value = ""
+        newFolderPassword.value = ""
+        confirmFolderPassword.value = ""
+        name.value =
+            manager.dialog.nameMode === "rename"
+                ? (manager.activeEntry?.name ?? "")
+                : ""
+        managedUsername.value = manager.activeUser?.username ?? ""
+        managedRole.value = manager.activeUser?.role ?? "editor"
+        managedPassword.value = ""
+    }
+
+    /** Hands the login form to the prototype session controller. */
+    const submitLogin = (): void => {
+        manager.login(username.value)
+    }
+
+    /** Attempts the current folder challenge without leaking it into markup. */
+    const submitUnlock = (): void => {
+        error.value = manager.unlockFolder(unlockPassword.value) ?? ""
+    }
+
+    /** Saves folder protection or password rotation and reports friendly errors. */
+    const submitSecurity = (): void => {
+        error.value =
+            manager.saveFolderSecurity(
+                currentFolderPassword.value,
+                newFolderPassword.value,
+                confirmFolderPassword.value,
+            ) ?? ""
+    }
+
+    /** Creates or renames the active entry through reactive state. */
+    const submitName = (): void => {
+        error.value = manager.saveName(name.value) ?? ""
+    }
+
+    /** Creates or edits a managed identity in the prototype. */
+    const submitUser = (): void => {
+        error.value =
+            manager.saveUser({
+                username: managedUsername.value,
+                role: managedRole.value,
+                password: managedPassword.value,
+            }) ?? ""
+    }
+
+    /** Mirrors reactive dialog state into the native modal browser API. */
+    const syncModal = async (): Promise<void> => {
+        const kind = manager.dialog.kind
+        if (!kind) return
+
+        resetDialogState()
+        await nextTick()
+        if (manager.dialog.kind !== kind) return
+        if (modal.value && !modal.value.open) modal.value.showModal()
+    }
+
+    watch(() => manager.dialog.kind, syncModal)
+</script>
+
 <template>
     <dialog
-        class="preview-dialog"
-        id="preview-dialog"
-        aria-labelledby="preview-title"
+        v-if="manager.dialog.kind"
+        ref="modal"
+        :class="{ 'preview-dialog': manager.dialog.kind === 'preview' }"
+        :aria-labelledby="
+            manager.dialog.kind === 'preview' ? 'preview-title' : 'dialog-title'
+        "
+        @cancel.prevent="manager.closeDialog"
+        @close="manager.closeDialog"
     >
-        <div class="preview-shell">
+        <div
+            v-if="manager.dialog.kind === 'preview' && manager.activeEntry"
+            class="preview-shell"
+        >
             <header class="preview-head">
                 <div class="preview-heading">
-                    <h2 class="preview-title" id="preview-title">
-                        file preview
+                    <h2 id="preview-title" class="preview-title">
+                        {{ manager.activeEntry.name }}
                     </h2>
-                    <p class="preview-meta" id="preview-meta"></p>
+                    <p class="preview-meta">
+                        {{ manager.activeEntry.type }} ·
+                        {{ formatFileSize(manager.activeEntry.size) }} ·
+                        modified {{ manager.activeEntry.modified }}
+                    </p>
                 </div>
                 <button
                     class="preview-close"
                     type="button"
-                    data-close="preview-dialog"
                     aria-label="Close preview"
+                    @click="manager.closeDialog"
                 >
                     ×
                 </button>
             </header>
-            <div class="preview-content" id="preview-content"></div>
+            <div class="preview-content">
+                <pre
+                    v-if="manager.activeEntry.type === 'text'"
+                    class="preview-text"
+                    >{{
+                        manager.activeEntry.content ??
+                        `// ${manager.activeEntry.name}\n\nText preview is available when file content is loaded.`
+                    }}</pre>
+                <img
+                    v-else-if="
+                        manager.activeEntry.type === 'image' &&
+                        manager.activeEntry.objectUrl
+                    "
+                    class="preview-image"
+                    :src="manager.activeEntry.objectUrl"
+                    :alt="`Preview of ${manager.activeEntry.name}`"
+                />
+                <div v-else class="preview-placeholder">
+                    <svg
+                        class="pixel-icon"
+                        viewBox="0 0 16 16"
+                        aria-hidden="true"
+                    >
+                        <use :href="`#icon-${previewDetails.icon}`" />
+                    </svg>
+                    <span>{{ previewMessage }}</span>
+                </div>
+            </div>
             <footer class="preview-foot">
                 <button
                     class="dialog-button"
-                    id="preview-download"
                     type="button"
+                    @click="manager.downloadEntry(manager.activeEntry)"
                 >
                     download ↓
                 </button>
                 <button
                     class="dialog-button primary"
                     type="button"
-                    data-close="preview-dialog"
+                    @click="manager.closeDialog"
                 >
                     done
                 </button>
             </footer>
         </div>
-    </dialog>
 
-    <dialog id="login-dialog" aria-labelledby="login-title">
-        <form class="dialog-form" id="login-form">
+        <form
+            v-else-if="manager.dialog.kind === 'login'"
+            class="dialog-form"
+            @submit.prevent="submitLogin"
+        >
             <p class="dialog-kicker">private access</p>
-            <h2 class="dialog-title" id="login-title">
+            <h2 id="dialog-title" class="dialog-title">
                 log in to file node 01
             </h2>
             <p class="dialog-copy">
@@ -52,30 +194,27 @@
                 management for this session.
             </p>
             <label class="field"
-                >username
-                <input
+                >username<input
+                    v-model="username"
                     class="field-input"
-                    id="username"
                     name="username"
                     autocomplete="username"
                     required
-                />
-            </label>
+            /></label>
             <label class="field"
-                >password
-                <input
+                >password<input
+                    v-model="loginPassword"
                     class="field-input"
                     name="password"
                     type="password"
                     autocomplete="current-password"
                     required
-                />
-            </label>
+            /></label>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="login-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
@@ -84,13 +223,15 @@
                 </button>
             </div>
         </form>
-    </dialog>
 
-    <dialog id="unlock-dialog" aria-labelledby="unlock-title">
-        <form class="dialog-form" id="unlock-form">
+        <form
+            v-else-if="manager.dialog.kind === 'unlock' && manager.activeEntry"
+            class="dialog-form"
+            @submit.prevent="submitUnlock"
+        >
             <p class="dialog-kicker">protected folder</p>
-            <h2 class="dialog-title" id="unlock-title">
-                unlock <span id="unlock-name"></span>
+            <h2 id="dialog-title" class="dialog-title">
+                unlock “{{ manager.activeEntry.name }}”
             </h2>
             <p class="dialog-copy">
                 Enter the folder password to continue. It will remain unlocked
@@ -100,21 +241,20 @@
                 Frontend preview password: <code>threshold</code>
             </p>
             <label class="field"
-                >folder password
-                <input
+                >folder password<input
+                    v-model="unlockPassword"
                     class="field-input"
-                    id="unlock-password"
                     type="password"
                     autocomplete="off"
                     required
-                />
-            </label>
-            <p class="field-error" id="unlock-error" aria-live="polite"></p>
+                    @input="error = ''"
+            /></label>
+            <p class="field-error" aria-live="polite">{{ error }}</p>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="unlock-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
@@ -123,112 +263,152 @@
                 </button>
             </div>
         </form>
-    </dialog>
 
-    <dialog id="security-dialog" aria-labelledby="security-title">
-        <form class="dialog-form" id="security-form">
+        <form
+            v-else-if="
+                manager.dialog.kind === 'security' && manager.activeEntry
+            "
+            class="dialog-form"
+            @submit.prevent="submitSecurity"
+        >
             <p class="dialog-kicker">folder security</p>
-            <h2 class="dialog-title" id="security-title">protect folder</h2>
-            <p class="dialog-copy" id="security-copy">
-                Require a password before this folder can be opened.
+            <h2 id="dialog-title" class="dialog-title">
+                {{
+                    manager.dialog.securityMode === "protect"
+                        ? "protect folder"
+                        : "change folder password"
+                }}
+            </h2>
+            <p class="dialog-copy">
+                {{
+                    manager.dialog.securityMode === "protect"
+                        ? `Require a password before “${manager.activeEntry.name}” can be opened.`
+                        : `Replace the password for “${manager.activeEntry.name}”.`
+                }}
             </p>
-            <label class="field" id="current-password-field" hidden
-                >current password
-                <input
+            <label v-if="manager.dialog.securityMode === 'change'" class="field"
+                >current password<input
+                    v-model="currentFolderPassword"
                     class="field-input"
-                    id="current-password"
                     type="password"
                     autocomplete="off"
-                />
-            </label>
+                    required
+                    @input="error = ''"
+            /></label>
             <label class="field"
-                >new password
-                <input
+                >new password<input
+                    v-model="newFolderPassword"
                     class="field-input"
-                    id="new-password"
                     type="password"
                     autocomplete="new-password"
                     minlength="4"
                     required
-                />
-            </label>
+                    @input="error = ''"
+            /></label>
             <label class="field"
-                >confirm new password
-                <input
+                >confirm new password<input
+                    v-model="confirmFolderPassword"
                     class="field-input"
-                    id="confirm-password"
                     type="password"
                     autocomplete="new-password"
                     minlength="4"
                     required
-                />
-            </label>
-            <p class="field-error" id="security-error" aria-live="polite"></p>
+                    @input="error = ''"
+            /></label>
+            <p class="field-error" aria-live="polite">{{ error }}</p>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="security-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
-                <button
-                    class="dialog-button primary"
-                    id="security-submit"
-                    type="submit"
-                >
-                    protect folder
+                <button class="dialog-button primary" type="submit">
+                    {{
+                        manager.dialog.securityMode === "protect"
+                            ? "protect folder"
+                            : "change password"
+                    }}
                 </button>
             </div>
         </form>
-    </dialog>
 
-    <dialog id="name-dialog" aria-labelledby="name-title">
-        <form class="dialog-form" id="name-form">
-            <p class="dialog-kicker" id="name-kicker">file action</p>
-            <h2 class="dialog-title" id="name-title">rename item</h2>
-            <p class="dialog-copy" id="name-copy">Choose a new name.</p>
+        <form
+            v-else-if="manager.dialog.kind === 'name'"
+            class="dialog-form"
+            @submit.prevent="submitName"
+        >
+            <p class="dialog-kicker">
+                {{
+                    manager.dialog.nameMode === "rename"
+                        ? "file action"
+                        : "new directory"
+                }}
+            </p>
+            <h2 id="dialog-title" class="dialog-title">
+                {{
+                    manager.dialog.nameMode === "rename"
+                        ? "rename item"
+                        : "create folder"
+                }}
+            </h2>
+            <p class="dialog-copy">
+                {{
+                    manager.dialog.nameMode === "rename"
+                        ? `Rename “${manager.activeEntry?.name ?? ""}”.`
+                        : "Add a folder to the current path."
+                }}
+            </p>
             <label class="field"
-                ><span id="name-label">name</span>
-                <input
+                >name<input
+                    v-model="name"
                     class="field-input"
-                    id="name-input"
                     required
                     maxlength="120"
-                />
-            </label>
+                    @input="error = ''"
+            /></label>
+            <p class="field-error" aria-live="polite">{{ error }}</p>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="name-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
-                <button
-                    class="dialog-button primary"
-                    id="name-submit"
-                    type="submit"
-                >
-                    save
+                <button class="dialog-button primary" type="submit">
+                    {{
+                        manager.dialog.nameMode === "rename"
+                            ? "save name"
+                            : "create folder"
+                    }}
                 </button>
             </div>
         </form>
-    </dialog>
 
-    <dialog id="delete-dialog" aria-labelledby="delete-title">
-        <form class="dialog-form" id="delete-form">
+        <form
+            v-else-if="manager.dialog.kind === 'delete' && manager.activeEntry"
+            class="dialog-form"
+            @submit.prevent="manager.deleteEntry"
+        >
             <p class="dialog-kicker">destructive action</p>
-            <h2 class="dialog-title" id="delete-title">delete this item?</h2>
-            <p class="dialog-copy" id="delete-copy">
-                This will remove <strong id="delete-name"></strong> from the
-                current frontend session.
+            <h2 id="dialog-title" class="dialog-title">delete this item?</h2>
+            <p class="dialog-copy">
+                This will remove
+                <strong>“{{ manager.activeEntry.name }}”</strong
+                >{{
+                    manager.activeEntry.type === "folder"
+                        ? " and everything inside it"
+                        : ""
+                }}
+                from the current frontend session.
             </p>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="delete-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
@@ -237,72 +417,78 @@
                 </button>
             </div>
         </form>
-    </dialog>
 
-    <dialog id="user-dialog" aria-labelledby="user-dialog-title">
-        <form class="dialog-form" id="user-form">
-            <p class="dialog-kicker" id="user-dialog-kicker">
-                identity management
-            </p>
-            <h2 class="dialog-title" id="user-dialog-title">create user</h2>
-            <p class="dialog-copy" id="user-dialog-copy">
-                Add an identity that can access this file node.
+        <form
+            v-else-if="manager.dialog.kind === 'user'"
+            class="dialog-form"
+            @submit.prevent="submitUser"
+        >
+            <p class="dialog-kicker">identity management</p>
+            <h2 id="dialog-title" class="dialog-title">
+                {{ manager.activeUser ? "edit user" : "create user" }}
+            </h2>
+            <p class="dialog-copy">
+                {{
+                    manager.activeUser
+                        ? `Change access details for “${manager.activeUser.username}”.`
+                        : "Add an identity that can access this file node."
+                }}
             </p>
             <label class="field"
-                >username
-                <input
+                >username<input
+                    v-model="managedUsername"
                     class="field-input"
-                    id="managed-username"
                     autocomplete="off"
                     maxlength="40"
                     required
-                />
-            </label>
+                    @input="error = ''"
+            /></label>
             <label class="field"
-                >role
-                <select class="field-input" id="managed-role">
+                >role<select v-model="managedRole" class="field-input">
                     <option value="viewer">viewer · browse and download</option>
-                    <option value="editor" selected>
-                        editor · manage files
-                    </option>
+                    <option value="editor">editor · manage files</option>
                     <option value="admin">
                         admin · manage files and users
                     </option>
-                </select>
-            </label>
+                </select></label
+            >
             <label class="field"
-                ><span id="managed-password-label">temporary password</span>
-                <input
+                >{{ manager.activeUser ? "new password" : "temporary password"
+                }}<input
+                    v-model="managedPassword"
                     class="field-input"
-                    id="managed-password"
                     type="password"
                     autocomplete="new-password"
                     minlength="8"
-                    required
-                />
-                <span class="field-help" id="managed-password-help"
-                    >The user should replace this after signing in.</span
-                >
-            </label>
-            <p class="field-error" id="user-form-error" aria-live="polite"></p>
+                    :required="!manager.activeUser"
+                /><span class="field-help">{{
+                    manager.activeUser
+                        ? "Leave empty to keep the current password."
+                        : "The user should replace this after signing in."
+                }}</span></label
+            >
+            <p class="field-error" aria-live="polite">{{ error }}</p>
             <div class="dialog-actions">
                 <button
                     class="dialog-button"
                     type="button"
-                    data-close="user-dialog"
+                    @click="manager.closeDialog"
                 >
                     cancel
                 </button>
-                <button
-                    class="dialog-button primary"
-                    id="user-form-submit"
-                    type="submit"
-                >
-                    create user
+                <button class="dialog-button primary" type="submit">
+                    {{ manager.activeUser ? "save user" : "create user" }}
                 </button>
             </div>
         </form>
     </dialog>
 
-    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <div
+        v-if="manager.toastMessage"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    >
+        {{ manager.toastMessage }}
+    </div>
 </template>

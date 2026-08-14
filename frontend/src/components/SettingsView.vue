@@ -1,17 +1,79 @@
+<script setup lang="ts">
+    import { reactive, ref } from "vue"
+    import type { FileManager } from "../composables/useFileManager"
+    import type { SettingsPanel } from "../types/fileManager"
+    import UserList from "./UserList.vue"
+
+    const { manager } = defineProps<{ manager: FileManager }>()
+    const panels: SettingsPanel[] = ["account", "users", "site", "security"]
+    const account = reactive({
+        username: manager.currentUsername,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    })
+    const site = reactive({ ...manager.siteSettings })
+    const security = reactive({ ...manager.securitySettings })
+    const accountError = ref("")
+
+    /** Selects a panel and supports the vertical tab keyboard pattern. */
+    const selectPanel = (panel: SettingsPanel): void => {
+        manager.settingsPanel = panel
+        if (panel === "account") account.username = manager.currentUsername
+    }
+
+    /** Moves through settings tabs without involving global DOM selectors. */
+    const movePanel = (event: KeyboardEvent, index: number): void => {
+        if (
+            !["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"].includes(
+                event.key,
+            )
+        )
+            return
+        event.preventDefault()
+        const forward = event.key === "ArrowDown" || event.key === "ArrowRight"
+        const next =
+            panels[(index + (forward ? 1 : -1) + panels.length) % panels.length]
+        if (next) selectPanel(next)
+    }
+
+    /** Validates and saves the account form through the controller. */
+    const submitAccount = (): void => {
+        accountError.value = manager.saveAccount(account) ?? ""
+        if (accountError.value) return
+        account.currentPassword = ""
+        account.newPassword = ""
+        account.confirmPassword = ""
+    }
+
+    /** Applies the site draft only after the user asks to save it. */
+    const submitSite = (): void => {
+        manager.saveSiteSettings({ ...site })
+    }
+
+    /** Applies the security draft to the temporary settings state. */
+    const submitSecurity = (): void => {
+        manager.saveSecuritySettings({ ...security })
+    }
+</script>
+
 <template>
     <section
-        class="settings-view"
         id="settings-view"
+        class="settings-view"
         aria-labelledby="settings-title"
         tabindex="-1"
-        hidden
     >
         <header class="settings-header">
-            <button class="settings-return" id="settings-return" type="button">
+            <button
+                class="settings-return"
+                type="button"
+                @click="manager.showBrowser"
+            >
                 ← back to files
             </button>
             <p class="eyebrow">node administration · private</p>
-            <h1 class="settings-title" id="settings-title">
+            <h1 id="settings-title" class="settings-title">
                 <span class="title-prefix">#</span>settings<span class="accent"
                     >.</span
                 >panel
@@ -31,58 +93,29 @@
             >
                 <p class="settings-nav-label">configuration</p>
                 <button
+                    v-for="(panel, index) in panels"
+                    :id="`settings-tab-${panel}`"
+                    :key="panel"
                     class="settings-tab"
-                    id="settings-tab-account"
                     type="button"
                     role="tab"
-                    aria-selected="true"
-                    aria-controls="settings-account"
-                    data-settings-tab="account"
+                    :tabindex="manager.settingsPanel === panel ? 0 : -1"
+                    :aria-selected="manager.settingsPanel === panel"
+                    :aria-controls="`settings-${panel}`"
+                    @click="selectPanel(panel)"
+                    @keydown="movePanel($event, index)"
                 >
-                    account
-                </button>
-                <button
-                    class="settings-tab"
-                    id="settings-tab-users"
-                    type="button"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="settings-users"
-                    data-settings-tab="users"
-                >
-                    users
-                </button>
-                <button
-                    class="settings-tab"
-                    id="settings-tab-site"
-                    type="button"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="settings-site"
-                    data-settings-tab="site"
-                >
-                    site
-                </button>
-                <button
-                    class="settings-tab"
-                    id="settings-tab-security"
-                    type="button"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="settings-security"
-                    data-settings-tab="security"
-                >
-                    security
+                    {{ panel }}
                 </button>
             </nav>
 
             <div class="settings-content">
                 <section
-                    class="settings-panel"
+                    v-if="manager.settingsPanel === 'account'"
                     id="settings-account"
+                    class="settings-panel"
                     role="tabpanel"
                     aria-labelledby="settings-tab-account"
-                    data-settings-panel="account"
                 >
                     <header class="settings-section-head">
                         <h2 class="settings-section-title">your account</h2>
@@ -91,7 +124,6 @@
                             your password.
                         </p>
                     </header>
-
                     <div class="settings-card">
                         <div class="settings-card-head">
                             <h3 class="settings-card-title">identity</h3>
@@ -102,13 +134,12 @@
                                 >Þ</span
                             >
                             <div class="identity-meta">
-                                <strong id="identity-name">naru</strong
-                                ><span>full node access · user 001</span>
+                                <strong>{{ manager.currentUsername }}</strong>
+                                <span>full node access · user 001</span>
                             </div>
                         </div>
                     </div>
-
-                    <form class="settings-card" id="account-settings-form">
+                    <form class="settings-card" @submit.prevent="submitAccount">
                         <div class="settings-card-head">
                             <h3 class="settings-card-title">credentials</h3>
                             <span class="settings-card-note"
@@ -116,55 +147,57 @@
                             >
                         </div>
                         <div class="settings-card-body settings-grid">
-                            <label class="field full"
-                                >username
+                            <label class="field full">
+                                username
                                 <input
+                                    v-model="account.username"
                                     class="field-input"
-                                    id="account-username"
                                     autocomplete="username"
                                     maxlength="40"
                                     required
+                                    @input="accountError = ''"
                                 />
                                 <span class="field-help"
                                     >Used to sign in and shown in the file
                                     path.</span
                                 >
                             </label>
-                            <label class="field"
-                                >current password
+                            <label class="field">
+                                current password
                                 <input
+                                    v-model="account.currentPassword"
                                     class="field-input"
-                                    id="account-current-password"
                                     type="password"
                                     autocomplete="current-password"
+                                    @input="accountError = ''"
                                 />
                             </label>
                             <span></span>
-                            <label class="field"
-                                >new password
+                            <label class="field">
+                                new password
                                 <input
+                                    v-model="account.newPassword"
                                     class="field-input"
-                                    id="account-new-password"
                                     type="password"
                                     autocomplete="new-password"
                                     minlength="8"
+                                    @input="accountError = ''"
                                 />
                             </label>
-                            <label class="field"
-                                >confirm new password
+                            <label class="field">
+                                confirm new password
                                 <input
+                                    v-model="account.confirmPassword"
                                     class="field-input"
-                                    id="account-confirm-password"
                                     type="password"
                                     autocomplete="new-password"
                                     minlength="8"
+                                    @input="accountError = ''"
                                 />
                             </label>
-                            <p
-                                class="field-error full"
-                                id="account-settings-error"
-                                aria-live="polite"
-                            ></p>
+                            <p class="field-error full" aria-live="polite">
+                                {{ accountError }}
+                            </p>
                         </div>
                         <div class="settings-actions">
                             <button class="dialog-button primary" type="submit">
@@ -175,12 +208,11 @@
                 </section>
 
                 <section
-                    class="settings-panel"
+                    v-else-if="manager.settingsPanel === 'users'"
                     id="settings-users"
+                    class="settings-panel"
                     role="tabpanel"
                     aria-labelledby="settings-tab-users"
-                    data-settings-panel="users"
-                    hidden
                 >
                     <header class="settings-section-head">
                         <h2 class="settings-section-title">users</h2>
@@ -192,17 +224,17 @@
                     <div class="settings-card">
                         <div class="settings-card-head">
                             <h3 class="settings-card-title">
-                                <span id="user-count">3</span> identities
+                                {{ manager.users.length }} identities
                             </h3>
                             <button
                                 class="dialog-button primary"
-                                id="add-user-button"
                                 type="button"
+                                @click="manager.openDialog('user')"
                             >
                                 + new user
                             </button>
                         </div>
-                        <div class="users-list" id="settings-user-list"></div>
+                        <UserList :manager="manager" />
                     </div>
                     <p class="settings-warning">
                         <strong>Permissions are server-enforced.</strong>
@@ -212,12 +244,11 @@
                 </section>
 
                 <section
-                    class="settings-panel"
+                    v-else-if="manager.settingsPanel === 'site'"
                     id="settings-site"
+                    class="settings-panel"
                     role="tabpanel"
                     aria-labelledby="settings-tab-site"
-                    data-settings-panel="site"
-                    hidden
                 >
                     <header class="settings-section-head">
                         <h2 class="settings-section-title">site</h2>
@@ -226,49 +257,45 @@
                             file-node behavior.
                         </p>
                     </header>
-                    <form class="settings-card" id="site-settings-form">
+                    <form class="settings-card" @submit.prevent="submitSite">
                         <div class="settings-card-head">
                             <h3 class="settings-card-title">general</h3>
                             <span class="settings-card-note">node 01</span>
                         </div>
                         <div class="settings-card-body settings-grid">
-                            <label class="field"
-                                >site label
+                            <label class="field">
+                                site label
                                 <input
+                                    v-model="site.label"
                                     class="field-input"
-                                    id="site-label-input"
-                                    value="files"
                                     maxlength="32"
                                     required
                                 />
                             </label>
-                            <label class="field"
-                                >node name
+                            <label class="field">
+                                node name
                                 <input
+                                    v-model="site.nodeName"
                                     class="field-input"
-                                    id="node-name-input"
-                                    value="FILE NODE 01"
                                     maxlength="48"
                                     required
                                 />
                             </label>
-                            <label class="field full"
-                                >welcome message
+                            <label class="field full">
+                                welcome message
                                 <input
+                                    v-model="site.intro"
                                     class="field-input"
-                                    id="site-intro-input"
-                                    value="a quiet place for files, builds and things worth keeping around."
                                     maxlength="140"
                                     required
                                 />
                             </label>
-                            <label class="field"
-                                >maximum upload size
+                            <label class="field">
+                                maximum upload size
                                 <input
+                                    v-model.number="site.maxUploadMegabytes"
                                     class="field-input"
-                                    id="upload-limit-input"
                                     type="number"
-                                    value="25"
                                     min="1"
                                     max="5000"
                                     required
@@ -277,11 +304,11 @@
                                     >Megabytes per file.</span
                                 >
                             </label>
-                            <label class="field"
-                                >default sort
+                            <label class="field">
+                                default sort
                                 <select
+                                    v-model="site.defaultSort"
                                     class="field-input"
-                                    id="default-sort-input"
                                 >
                                     <option value="name">name</option>
                                     <option value="modified">
@@ -311,9 +338,8 @@
                             >
                             <span class="switch"
                                 ><input
-                                    id="public-downloads-input"
-                                    type="checkbox"
-                                    checked /><span
+                                    v-model="site.publicDownloads"
+                                    type="checkbox" /><span
                                     class="switch-track"
                                     aria-hidden="true"
                                 ></span
@@ -329,9 +355,8 @@
                             >
                             <span class="switch"
                                 ><input
-                                    id="file-previews-input"
-                                    type="checkbox"
-                                    checked /><span
+                                    v-model="site.filePreviews"
+                                    type="checkbox" /><span
                                     class="switch-track"
                                     aria-hidden="true"
                                 ></span
@@ -341,12 +366,11 @@
                 </section>
 
                 <section
-                    class="settings-panel"
+                    v-else
                     id="settings-security"
+                    class="settings-panel"
                     role="tabpanel"
                     aria-labelledby="settings-tab-security"
-                    data-settings-panel="security"
-                    hidden
                 >
                     <header class="settings-section-head">
                         <h2 class="settings-section-title">security</h2>
@@ -355,7 +379,10 @@
                             of the archive.
                         </p>
                     </header>
-                    <form class="settings-card" id="security-settings-form">
+                    <form
+                        class="settings-card"
+                        @submit.prevent="submitSecurity"
+                    >
                         <div class="settings-card-head">
                             <h3 class="settings-card-title">access policy</h3>
                             <span class="settings-card-note"
@@ -372,9 +399,8 @@
                             >
                             <span class="switch"
                                 ><input
-                                    id="folder-protection-input"
-                                    type="checkbox"
-                                    checked /><span
+                                    v-model="security.folderProtection"
+                                    type="checkbox" /><span
                                     class="switch-track"
                                     aria-hidden="true"
                                 ></span
@@ -390,34 +416,32 @@
                             >
                             <span class="switch"
                                 ><input
-                                    id="audit-log-input"
-                                    type="checkbox"
-                                    checked /><span
+                                    v-model="security.auditLog"
+                                    type="checkbox" /><span
                                     class="switch-track"
                                     aria-hidden="true"
                                 ></span
                             ></span>
                         </label>
                         <div class="settings-card-body settings-grid">
-                            <label class="field"
-                                >session lifetime
+                            <label class="field">
+                                session lifetime
                                 <select
+                                    v-model.number="security.sessionLifetime"
                                     class="field-input"
-                                    id="session-lifetime-input"
                                 >
-                                    <option value="1">1 hour</option>
-                                    <option value="8" selected>8 hours</option>
-                                    <option value="24">24 hours</option>
-                                    <option value="168">7 days</option>
+                                    <option :value="1">1 hour</option>
+                                    <option :value="8">8 hours</option>
+                                    <option :value="24">24 hours</option>
+                                    <option :value="168">7 days</option>
                                 </select>
                             </label>
-                            <label class="field"
-                                >failed-login limit
+                            <label class="field">
+                                failed-login limit
                                 <input
+                                    v-model.number="security.loginLimit"
                                     class="field-input"
-                                    id="login-limit-input"
                                     type="number"
-                                    value="5"
                                     min="1"
                                     max="20"
                                     required

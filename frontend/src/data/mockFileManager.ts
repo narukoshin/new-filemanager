@@ -1,9 +1,4 @@
-import type {
-    EntryType,
-    FileEntry,
-    ManagedUser,
-    TypeDetails,
-} from "../types/fileManager"
+import type { FileEntry, ManagedUser } from "../types/fileManager"
 
 /** Conjures a fresh file tree for our charmingly temporary frontend session. */
 export const createMockEntries = (): FileEntry[] => [
@@ -114,13 +109,3 @@ export const createMockUsers = (): ManagedUser[] => [
     { id: 2, username: "moth", role: "editor", activity: "2 days ago" },
     { id: 3, username: "observer", role: "viewer", activity: "never" },
 ]
-
-/** Dresses each entry type in the proper class and icon. Presentation matters. */
-export const typeDetails: Record<EntryType, TypeDetails> = {
-    folder: { className: "folder", icon: "folder" },
-    archive: { className: "archive-file", icon: "archive" },
-    text: { className: "text-file", icon: "text" },
-    image: { className: "image-file", icon: "image" },
-    database: { className: "database-file", icon: "database" },
-    generic: { className: "text-file", icon: "text" },
-}

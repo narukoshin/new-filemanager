@@ -95,19 +95,3 @@ export const getUniqueEntryName = (
 
     return `${stem}-${index}${extension}`
 }
-
-/** Tames user text before it is allowed anywhere near trusted HTML. */
-export const escapeHTML = (value: string): string => {
-    const entities: Record<string, string> = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-    }
-
-    return value.replace(
-        /[&<>"']/g,
-        (character) => entities[character] ?? character,
-    )
-}
