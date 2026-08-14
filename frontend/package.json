@@ -20,6 +20,7 @@
     "@vue/tsconfig": "^0.9.1",
     "javascript-obfuscator": "^5.5.0",
     "prettier": "^3.9.6",
+    "terser": "^5.50.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vue-tsc": "^3.3.8"
