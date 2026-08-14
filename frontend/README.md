@@ -12,26 +12,16 @@ Create a production build with `npm run build`.
 ## Structure
 
 - `src/components` contains the Vue view components.
-- `src/composables/useFileManager.ts` coordinates the interactive browser
-  lifecycle.
-- `src/composables/fileManager` contains its DOM registry, file-domain helpers,
-  and element factories—small modules are much less likely to become dramatic.
-- `src/data` provides temporary in-memory data for the frontend prototype.
+- `src/backend/contracts.ts` defines the interface Vue expects from a backend.
+- `src/backend/index.ts` is the single implementation switch. It currently
+  selects the mock adapter; later it will select the Echo HTTP adapter.
+- `src/mocks` contains every fixture and simulated backend behavior used by the
+  frontend preview.
+- `src/composables/fileManager.ts` composes the feature domains and handles
+  the few commands that cross their boundaries.
+- `src/composables/auth.ts`, `files.ts`, `uploads.ts`, `navigation.ts`,
+  `users.ts`, `settings.ts`, `protectedFolders.ts`, and `notifications.ts` own
+  their respective reactive state and behavior.
+- `src/utils` contains pure file and presentation helpers with no Vue state.
 - `src/types` contains the shared file-manager domain types.
-- `src/utils` contains small DOM and validation helpers.
-- `src/assets/sass` contains indented Sass tokens, base rules, and component
-  partials.
-
-## Conventions
-
-- TypeScript uses typed arrow functions where practical.
-- Public helpers and lifecycle-heavy modules include concise JSDoc.
-- JavaScript and TypeScript use four-space indentation, double quotes, and no
-  semicolons.
-- Shared visual values belong in `src/assets/sass/_config.sass`.
-
-## Backend boundary
-
-Authentication, file operations, user administration, and settings currently
-use in-memory browser state. The `useFileManager` composable documents the
-temporary boundary that will be replaced by the Go API.
+- `src/assets/sass` contains indented Sass tokens, base rules, and component partials.
