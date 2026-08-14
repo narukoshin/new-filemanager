@@ -41,6 +41,6 @@ jobs:
           git remote add codeberg \
             "https://${CODEBERG_USER}:${CODEBERG_TOKEN}@codeberg.org/${GITHUB_REPOSITORY}.git"
 
-          git push --prune codeberg \
+          git push --force --prune codeberg \
             'refs/heads/*:refs/heads/*' \
             'refs/tags/*:refs/tags/*'
