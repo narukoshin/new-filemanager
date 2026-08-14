@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FileManager } from "../composables/useFileManager"
+    import type { FileManager } from "../composables/fileManager"
     import type { ManagedUser } from "../types/fileManager"
 
     const { manager } = defineProps<{ manager: FileManager }>()

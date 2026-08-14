@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import type { FileManager } from "../composables/useFileManager"
+    import type { FileManager } from "../composables/fileManager"
 
     defineProps<{ manager: FileManager }>()
 </script>

@@ -1,7 +1,12 @@
 import type { FileEntry, ManagedUser } from "../types/fileManager"
 
+/** Mock persistence may keep secrets that must never enter shared UI models. */
+export interface MockFileEntry extends FileEntry {
+    password?: string
+}
+
 /** Conjures a fresh file tree for our charmingly temporary frontend session. */
-export const createMockEntries = (): FileEntry[] => [
+export const createMockEntries = (): MockFileEntry[] => [
     {
         id: 1,
         parentId: null,

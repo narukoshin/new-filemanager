@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { ref } from "vue"
-    import { useGalaxy } from "../composables/useGalaxy"
+    import { useGalaxy } from "../composables/galaxy"
 
     const canvas = ref<HTMLCanvasElement | null>(null)
 

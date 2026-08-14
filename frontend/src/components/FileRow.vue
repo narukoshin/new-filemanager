@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { computed } from "vue"
-    import type { FileManager } from "../composables/useFileManager"
-    import { typeDetails } from "../composables/fileManager/presentation"
+    import type { FileManager } from "../composables/fileManager"
+    import { typeDetails } from "../utils/filePresentation"
     import type { FileEntry } from "../types/fileManager"
-    import { formatFileSize } from "../composables/fileManager/files"
+    import { formatFileSize } from "../utils/fileEntries"
 
     const { entry, manager } = defineProps<{
         entry: FileEntry

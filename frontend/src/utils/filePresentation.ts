@@ -1,4 +1,4 @@
-import type { EntryType, TypeDetails } from "../../types/fileManager"
+import type { EntryType, TypeDetails } from "../types/fileManager"
 
 /** Dresses each entry type in the proper class and icon. Presentation matters. */
 export const typeDetails: Record<EntryType, TypeDetails> = {

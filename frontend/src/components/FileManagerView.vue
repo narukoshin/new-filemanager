@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { onMounted, onUnmounted, ref } from "vue"
-    import type { FileManager } from "../composables/useFileManager"
+    import type { FileManager } from "../composables/fileManager"
     import type { SortKey } from "../types/fileManager"
     import FileRow from "./FileRow.vue"
     import UploadQueue from "./UploadQueue.vue"

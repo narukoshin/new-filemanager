@@ -24,7 +24,6 @@ export interface FileEntry {
     modifiedAt: number
     content?: string
     objectUrl?: string
-    password?: string
     protected?: boolean
     unlocked?: boolean
 }

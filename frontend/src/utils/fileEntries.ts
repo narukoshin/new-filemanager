@@ -3,7 +3,7 @@ import type {
     FileEntry,
     SortDirection,
     SortKey,
-} from "../../types/fileManager"
+} from "../types/fileManager"
 
 const archiveExtensions = new Set(["zip", "tar", "gz", "7z", "rar"])
 const databaseExtensions = new Set(["db", "sqlite", "sqlite3"])

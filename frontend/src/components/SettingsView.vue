@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { reactive, ref } from "vue"
-    import type { FileManager } from "../composables/useFileManager"
+    import type { FileManager } from "../composables/fileManager"
     import type { SettingsPanel } from "../types/fileManager"
     import UserList from "./UserList.vue"
 
@@ -38,8 +38,8 @@
     }
 
     /** Validates and saves the account form through the controller. */
-    const submitAccount = (): void => {
-        accountError.value = manager.saveAccount(account) ?? ""
+    const submitAccount = async (): Promise<void> => {
+        accountError.value = (await manager.saveAccount(account)) ?? ""
         if (accountError.value) return
         account.currentPassword = ""
         account.newPassword = ""
@@ -47,13 +47,13 @@
     }
 
     /** Applies the site draft only after the user asks to save it. */
-    const submitSite = (): void => {
-        manager.saveSiteSettings({ ...site })
+    const submitSite = async (): Promise<void> => {
+        await manager.saveSiteSettings({ ...site })
     }
 
     /** Applies the security draft to the temporary settings state. */
-    const submitSecurity = (): void => {
-        manager.saveSecuritySettings({ ...security })
+    const submitSecurity = async (): Promise<void> => {
+        await manager.saveSecuritySettings({ ...security })
     }
 </script>
 

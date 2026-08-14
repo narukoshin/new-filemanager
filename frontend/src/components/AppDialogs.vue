@@ -1,9 +1,9 @@
 <script setup lang="ts">
     import { computed, nextTick, ref, watch } from "vue"
-    import type { FileManager } from "../composables/useFileManager"
-    import { typeDetails } from "../composables/fileManager/presentation"
+    import type { FileManager } from "../composables/fileManager"
+    import { typeDetails } from "../utils/filePresentation"
     import type { UserRole } from "../types/fileManager"
-    import { formatFileSize } from "../composables/fileManager/files"
+    import { formatFileSize } from "../utils/fileEntries"
 
     const { manager } = defineProps<{ manager: FileManager }>()
     const modal = ref<HTMLDialogElement | null>(null)
@@ -51,38 +51,39 @@
     }
 
     /** Hands the login form to the prototype session controller. */
-    const submitLogin = (): void => {
-        manager.login(username.value)
+    const submitLogin = async (): Promise<void> => {
+        error.value =
+            (await manager.login(username.value, loginPassword.value)) ?? ""
     }
 
     /** Attempts the current folder challenge without leaking it into markup. */
-    const submitUnlock = (): void => {
-        error.value = manager.unlockFolder(unlockPassword.value) ?? ""
+    const submitUnlock = async (): Promise<void> => {
+        error.value = (await manager.unlockFolder(unlockPassword.value)) ?? ""
     }
 
     /** Saves folder protection or password rotation and reports friendly errors. */
-    const submitSecurity = (): void => {
+    const submitSecurity = async (): Promise<void> => {
         error.value =
-            manager.saveFolderSecurity(
+            (await manager.saveFolderSecurity(
                 currentFolderPassword.value,
                 newFolderPassword.value,
                 confirmFolderPassword.value,
-            ) ?? ""
+            )) ?? ""
     }
 
     /** Creates or renames the active entry through reactive state. */
-    const submitName = (): void => {
-        error.value = manager.saveName(name.value) ?? ""
+    const submitName = async (): Promise<void> => {
+        error.value = (await manager.saveName(name.value)) ?? ""
     }
 
     /** Creates or edits a managed identity in the prototype. */
-    const submitUser = (): void => {
+    const submitUser = async (): Promise<void> => {
         error.value =
-            manager.saveUser({
+            (await manager.saveUser({
                 username: managedUsername.value,
                 role: managedRole.value,
                 password: managedPassword.value,
-            }) ?? ""
+            })) ?? ""
     }
 
     /** Mirrors reactive dialog state into the native modal browser API. */

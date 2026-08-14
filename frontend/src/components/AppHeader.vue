@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { onMounted, onUnmounted, ref, watch } from "vue"
-    import type { FileManager } from "../composables/useFileManager"
+    import type { FileManager } from "../composables/fileManager"
 
     const { manager } = defineProps<{ manager: FileManager }>()
     const accountMenuOpen = ref(false)

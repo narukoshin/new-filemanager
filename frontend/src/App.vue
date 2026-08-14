@@ -5,7 +5,7 @@
     import GalaxyBackground from "./components/GalaxyBackground.vue"
     import IconSprite from "./components/IconSprite.vue"
     import SettingsView from "./components/SettingsView.vue"
-    import { useFileManager } from "./composables/useFileManager"
+    import { useFileManager } from "./composables/fileManager"
 
     const manager = useFileManager()
 </script>
