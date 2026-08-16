@@ -1,0 +1,13 @@
+# Disallow list
+*
+
+# Allow list
+!.gitignore
+!LICENSE
+!README.md
+
+!index.html
+!frontend/
+!frontend/**
+!backend/
+!backend/**
