@@ -1,5 +1,10 @@
 package app
 
+import (
+	"github.com/narukoshin/new-filemanager/internal/server"
+)
+
 func Start() error {
-	return nil
+	s := server.New(":8080")
+	return s.Start()
 }

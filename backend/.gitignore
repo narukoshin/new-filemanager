@@ -1,1 +1,22 @@
-config.yml
+# Deny list
+/*
+
+# Allow list
+!/.gitignore
+!/config.example.yml
+!/go.mod
+!/go.sum
+
+# Folders
+!/cmd/
+!/cmd/**
+!/internal/
+!/internal/**
+
+# Allow only .gitkeep in database folder
+!/database/
+!/database/.gitkeep
+
+# Allow only .gitkeep in logs folder
+!/logs/
+!/logs/.gitkeep

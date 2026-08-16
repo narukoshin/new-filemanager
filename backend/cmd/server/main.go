@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	defer func(){
+	defer func() {
 		if err := recover(); err != nil {
 			logging.Logger.Error().Interface("panic", err).Msg("panicked")
 		}
