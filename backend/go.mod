@@ -1,6 +1,6 @@
 module github.com/narukoshin/new-filemanager
 
-go 1.26.5
+go 1.26
 
 require (
 	github.com/labstack/echo/v5 v5.3.1
