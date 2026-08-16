@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/narukoshin/new-filemanager/internal/config"
-	"github.com/narukoshin/new-filemanager/internal/logging"
-	"github.com/narukoshin/new-filemanager/internal/server"
+	"codeberg.org/narukoshin/new-filemanager/internal/config"
+	"codeberg.org/narukoshin/new-filemanager/internal/logging"
+	"codeberg.org/narukoshin/new-filemanager/internal/server"
 )
 
 // VERSION is the application version.

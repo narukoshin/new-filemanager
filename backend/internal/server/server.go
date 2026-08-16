@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/labstack/echo/v5"
-	"github.com/narukoshin/new-filemanager/internal/middleware"
-	"github.com/narukoshin/new-filemanager/internal/routes"
+	"codeberg.org/narukoshin/new-filemanager/internal/middleware"
+	"codeberg.org/narukoshin/new-filemanager/internal/routes"
 )
 
 // Server manages the application's HTTP router and listening address.

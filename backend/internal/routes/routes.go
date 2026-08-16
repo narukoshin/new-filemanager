@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/labstack/echo/v5"
-	"github.com/narukoshin/new-filemanager/internal/config"
+	"codeberg.org/narukoshin/new-filemanager/internal/config"
 )
 
 // Register adds the application's HTTP routes

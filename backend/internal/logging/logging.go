@@ -15,7 +15,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/narukoshin/new-filemanager/internal/config"
+	"codeberg.org/narukoshin/new-filemanager/internal/config"
 )
 
 // Logger is the application's shared structured logger.

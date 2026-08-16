@@ -12,8 +12,8 @@ package main
 ;**/
 
 import (
-	"github.com/narukoshin/new-filemanager/internal/app"
-	"github.com/narukoshin/new-filemanager/internal/logging"
+	"codeberg.org/narukoshin/new-filemanager/internal/app"
+	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 )
 
 func main() {
