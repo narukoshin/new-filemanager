@@ -1,12 +1,13 @@
 package routes
 
 import (
-	"github.com/labstack/echo/v5"
+	"codeberg.org/narukoshin/new-filemanager/internal/api"
 	"codeberg.org/narukoshin/new-filemanager/internal/config"
+	"github.com/labstack/echo/v5"
 )
 
 // Register adds the application's HTTP routes
-func Register(e *echo.Echo) {
+func Register(e *echo.Echo, users *api.Users) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(200, map[string]string{"status": "ok"})

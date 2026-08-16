@@ -1,8 +1,11 @@
 package app
 
 import (
+	"codeberg.org/narukoshin/new-filemanager/internal/api"
 	"codeberg.org/narukoshin/new-filemanager/internal/config"
+	"codeberg.org/narukoshin/new-filemanager/internal/database"
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
+	"codeberg.org/narukoshin/new-filemanager/internal/routes"
 	"codeberg.org/narukoshin/new-filemanager/internal/server"
 )
 
@@ -24,6 +27,22 @@ func Start() error {
 	if err := logging.Configure(); err != nil {
 		return err
 	}
-	s := server.New(":" + config.Conf.Server.Port)
-	return s.Start()
+	// initializing the database
+	db, err := database.Open()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	// initializing the User API
+	users := api.NewUsers(db)
+
+	// initializing the HTTP server
+	srv := server.New(":" + config.Conf.Server.Port)
+
+	// registering the routes
+	routes.Register(
+		srv.Router(),
+		users,
+	)
+	return srv.Start()
 }

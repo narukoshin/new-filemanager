@@ -15,6 +15,8 @@ type Config struct {
 	Logging LoggingConfig `yaml:"logging"`
 	// Storage contains settings for storage providers.
 	Storage StorageConfig `yaml:"storage"`
+	// Database contains settings for database providers.
+	Database DatabaseConfig `yaml:"database"`
 }
 
 // ServerConfig contains settings for the HTTP server.
@@ -39,6 +41,26 @@ type StorageConfig struct {
 
 // CloudflareConfig contains settings for Cloudflare storage.
 type CloudflareConfig struct {
+	// BucketName is the name of the Cloudflare bucket.
+	BucketName string `yaml:"bucket_name"`
+	// AccountID is the Cloudflare account ID.
+	AccountID string `yaml:"account_id"`
+	// AccessKeyID is the Cloudflare access key ID.
+	AccessKeyID string `yaml:"access_key_id"`
+	// AccessKeySecret is the Cloudflare access key secret.
+	AccessKeySecret string `yaml:"access_key_secret"`
+}
+
+// DatabaseConfig contains settings for database providers.
+type DatabaseConfig struct {
+	// SQLite3 contains settings for SQLite3 database.
+	SQLite3 SQLite3Config `yaml:"sqlite3"`
+}
+
+// SQLite3Config contains settings for SQLite3 database.
+type SQLite3Config struct {
+	// File is the path of the SQLite3 database file.
+	File string `yaml:"file"`
 }
 
 var (

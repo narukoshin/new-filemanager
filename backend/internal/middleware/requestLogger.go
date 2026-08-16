@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 )
 
 // RequestLogger returns middleware that logs each request.

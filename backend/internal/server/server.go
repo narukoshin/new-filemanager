@@ -1,34 +1,44 @@
 package server
 
 import (
-	"github.com/labstack/echo/v5"
 	"codeberg.org/narukoshin/new-filemanager/internal/middleware"
-	"codeberg.org/narukoshin/new-filemanager/internal/routes"
+
+	"github.com/labstack/echo/v5"
 )
 
-// Server manages the application's HTTP router and listening address.
+// Server owns the Echo instance and HTTP listen address.
 type Server struct {
 	router  *echo.Echo
 	address string
 }
 
-// New returns a Server configured to listen on address.
+// New creates the HTTP server.
 func New(address string) *Server {
+	router := echo.New()
+
+	// Runs before routing.
+	router.Pre(
+		middleware.RemoveTrailingSlash(),
+	)
+
+	// Runs for routed requests.
+	router.Use(
+		middleware.SecurityHeaders(),
+		middleware.RequestLogger(),
+	)
+
 	return &Server{
-		router:  echo.New(),
+		router:  router,
 		address: address,
 	}
 }
 
-// Start registers the application's middleware and routes, then starts serving requests.
+// Router returns the Echo instance so routes can be registered during app setup.
+func (s *Server) Router() *echo.Echo {
+	return s.router
+}
+
+// Start begins serving HTTP requests.
 func (s *Server) Start() error {
-	// removing trailing slashes from the request path
-	s.router.Pre(middleware.RemoveTrailingSlash())
-	// registering the routes and then starting the server
-	routes.Register(s.router)
-	// middleware for security headers
-	s.router.Use(middleware.SecurityHeaders())
-	// middleware for request logging
-	s.router.Use(middleware.RequestLogger())
 	return s.router.Start(s.address)
 }
