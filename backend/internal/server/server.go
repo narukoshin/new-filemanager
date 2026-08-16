@@ -19,9 +19,13 @@ func New(address string) *Server {
 }
 
 func (s *Server) Start() error {
+	// removing trailing slashes from the request path
+	s.router.Pre(middleware.RemoveTrailingSlash())
 	// registering the routes and then starting the server
 	routes.Register(s.router)
 	// middleware for security headers
 	s.router.Use(middleware.SecurityHeaders())
+	// middleware for request logging
+	s.router.Use(middleware.RequestLogger())
 	return s.router.Start(s.address)
 }

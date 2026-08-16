@@ -15,4 +15,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+var Logger zerolog.Logger
+
+func init() {
+	Logger.Info().Msg("logger initialized")
+	Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+}

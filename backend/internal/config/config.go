@@ -17,7 +17,20 @@ type StorageConfig struct {
 type CloudflareConfig struct {
 }
 
-var ConfigFileName = "config.yaml"
+var (
+	ConfigFileName = "config.yaml"
+	Version string
+)
+
+// SetVersion sets the version of the application
+func SetVersion(version string) {
+	Version = version
+}
+
+// GetVersion returns the version of the application
+func GetVersion() string {
+	return Version
+}
 
 func Load() (*Config, error) {
 	return nil, nil
