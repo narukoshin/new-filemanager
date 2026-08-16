@@ -20,3 +20,7 @@
 # Allow only .gitkeep in logs folder
 !/logs/
 !/logs/.gitkeep
+
+# Allow only .gitkeep in config folder
+!/config/
+!/config/.gitkeep
