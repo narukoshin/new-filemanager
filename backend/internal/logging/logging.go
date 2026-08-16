@@ -18,6 +18,7 @@ import (
 	"github.com/narukoshin/new-filemanager/internal/config"
 )
 
+// Logger is the application's shared structured logger.
 var Logger = zerolog.New(
 	zerolog.ConsoleWriter{
 		Out:        os.Stderr,
@@ -25,6 +26,7 @@ var Logger = zerolog.New(
 	},
 ).With().Timestamp().Logger()
 
+// Configure configures Logger using the loaded application settings.
 func Configure() error {
 	if config.Conf != nil && config.Conf.Logging.File != "" {
 		file, err := os.OpenFile(config.Conf.Logging.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)

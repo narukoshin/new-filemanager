@@ -6,11 +6,13 @@ import (
 	"github.com/narukoshin/new-filemanager/internal/routes"
 )
 
+// Server manages the application's HTTP router and listening address.
 type Server struct {
 	router  *echo.Echo
 	address string
 }
 
+// New returns a Server configured to listen on address.
 func New(address string) *Server {
 	return &Server{
 		router:  echo.New(),
@@ -18,6 +20,7 @@ func New(address string) *Server {
 	}
 }
 
+// Start registers the application's middleware and routes, then starts serving requests.
 func (s *Server) Start() error {
 	// removing trailing slashes from the request path
 	s.router.Pre(middleware.RemoveTrailingSlash())

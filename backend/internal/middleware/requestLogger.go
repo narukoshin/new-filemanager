@@ -6,7 +6,7 @@ import (
 	"github.com/narukoshin/new-filemanager/internal/logging"
 )
 
-// RequestLogger is a middleware that logs the request
+// RequestLogger returns middleware that logs each request.
 func RequestLogger() echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogStatus: true,

@@ -7,43 +7,64 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Config contains the application's server, logging, and storage settings.
 type Config struct {
+	// Server contains settings for the HTTP server.
+	Server ServerConfig `yaml:"server"`
+	// Logging contains settings for application logging.
 	Logging LoggingConfig `yaml:"logging"`
+	// Storage contains settings for storage providers.
 	Storage StorageConfig `yaml:"storage"`
 }
 
-type LoggingConfig struct {
-	Level string `yaml:"level"`
-	File  string `yaml:"file"`
+// ServerConfig contains settings for the HTTP server.
+type ServerConfig struct {
+	// Port is the TCP port on which the server listens.
+	Port string `yaml:"port" default:"8080"`
 }
 
+// LoggingConfig contains settings for application logging.
+type LoggingConfig struct {
+	// Level is the minimum severity level to log.
+	Level string `yaml:"level"`
+	// File is the path of the optional log file.
+	File string `yaml:"file"`
+}
+
+// StorageConfig contains settings for storage providers.
 type StorageConfig struct {
+	// Cloudflare contains settings for Cloudflare storage.
 	Cloudflare CloudflareConfig `yaml:"cloudflare"`
 }
 
+// CloudflareConfig contains settings for Cloudflare storage.
 type CloudflareConfig struct {
 }
 
 var (
+	// ConfigFileName is the default configuration file name.
 	ConfigFileName = "config.yaml"
-	Conf           *Config
-	Version        string
+	// Conf contains the loaded application configuration.
+	Conf *Config
+	// Version is the current application version.
+	Version string
 )
 
-// SetVersion sets the version of the application
+// SetVersion sets the application version.
 func SetVersion(version string) {
 	Version = version
 }
 
-// GetVersion returns the version of the application
+// GetVersion returns the application version.
 func GetVersion() string {
 	return Version
 }
 
-// Load loads the configuration file
+// Load reads, validates, and stores the application configuration.
 func Load() error {
 	// set defaults
-	err := defaults.Set(&Config{})
+	obj := &Config{}
+	err := defaults.Set(obj)
 	if err != nil {
 		return err
 	}
@@ -66,7 +87,7 @@ func Load() error {
 	// decode the YAML file
 	decoder := yaml.NewDecoder(file)
 	decoder.KnownFields(true)
-	err = decoder.Decode(&Conf)
+	err = decoder.Decode(obj)
 	if err != nil {
 		return err
 	}
@@ -74,10 +95,11 @@ func Load() error {
 	if err := Validate(); err != nil {
 		return err
 	}
+	Conf = obj
 	return nil
 }
 
-// Validate validates the configuration
+// Validate validates the application configuration.
 func Validate() error {
 	return nil
 }

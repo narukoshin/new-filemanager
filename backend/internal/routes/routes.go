@@ -5,6 +5,7 @@ import (
 	"github.com/narukoshin/new-filemanager/internal/config"
 )
 
+// Register adds the application's HTTP routes
 func Register(e *echo.Echo) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {

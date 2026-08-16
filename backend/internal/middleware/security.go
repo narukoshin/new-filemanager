@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 )
 
-// SecurityHeaders is a middleware that adds security headers to the response
+// SecurityHeaders returns middleware that adds security headers to responses.
 func SecurityHeaders() echo.MiddlewareFunc {
 	return middleware.SecureWithConfig(middleware.SecureConfig{
 		XSSProtection:         "0", // X-XSS-Protection is deprecated and should be disabled
