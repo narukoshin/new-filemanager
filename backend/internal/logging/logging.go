@@ -1,3 +1,4 @@
+// Package logging configures the application's structured logger.
 package logging
 
 /**;

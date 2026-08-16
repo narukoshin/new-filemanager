@@ -1,3 +1,4 @@
+// Command server runs the file manager backend.
 package main
 
 /**;
