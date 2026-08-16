@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/narukoshin/new-filemanager/internal/server"
-	"github.com/narukoshin/new-filemanager/internal/logging"
 	"github.com/narukoshin/new-filemanager/internal/config"
+	"github.com/narukoshin/new-filemanager/internal/logging"
+	"github.com/narukoshin/new-filemanager/internal/server"
 )
 
 // VERSION is the version of the application
@@ -15,7 +15,14 @@ func init() {
 }
 
 func Start() error {
+	// initializing the configuration
+	if err := config.Load(); err != nil {
+		return err
+	}
+	// configuring the logger
+	if err := logging.Configure(); err != nil {
+		return err
+	}
 	s := server.New(":8080")
-	logging.Logger.Info().Msg("this thing somehow works")
 	return s.Start()
 }

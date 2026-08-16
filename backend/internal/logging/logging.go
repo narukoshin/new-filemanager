@@ -10,14 +10,32 @@ package logging
 
 import (
 	"os"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/narukoshin/new-filemanager/internal/config"
 )
 
-var Logger zerolog.Logger
+var Logger = zerolog.New(
+	zerolog.ConsoleWriter{
+		Out:        os.Stderr,
+		TimeFormat: time.RFC3339,
+	},
+).With().Timestamp().Logger()
 
-func init() {
-	Logger.Info().Msg("logger initialized")
-	Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+func Configure() error {
+	if config.Conf != nil && config.Conf.Logging.File != "" {
+		file, err := os.OpenFile(config.Conf.Logging.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			return err
+		}
+		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
+		multi := zerolog.MultiLevelWriter(consoleWriter, file)
+		Logger = log.Output(multi)
+	} else {
+		Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+	}
+	return nil
 }
