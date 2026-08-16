@@ -14,13 +14,10 @@
 !/internal/**
 
 # Allow only .gitkeep in database folder
-!/database/
 !/database/.gitkeep
 
 # Allow only .gitkeep in logs folder
-!/logs/
 !/logs/.gitkeep
 
 # Allow only .gitkeep in config folder
-!/config/
 !/config/.gitkeep
