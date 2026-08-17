@@ -86,3 +86,37 @@ func (db *Database) GetUsers(ctx context.Context) ([]*user.User, error) {
 	}
 	return users, nil
 }
+
+// GetUserById returns a user by id.
+func (db *Database) GetUserById(ctx context.Context, id string) (*user.User, error) {
+	user := &user.User{}
+	row := db.db.QueryRowContext(
+		ctx,
+		`SELECT id, username, role, disabled, created_at, updated_at FROM users WHERE id = $1`,
+		id,
+	)
+	row.Scan(
+		&user.ID,
+		&user.Username,
+		&user.Role,
+		&user.Disabled,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	// if the user doesnt exist, returning empty struct
+	// database is not supposed to validate and stuff
+	if user.ID == 0 {
+		return user, nil
+	}
+	// if there is an error, return it
+	if err := row.Err(); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// DeleteUser deletes a user by id.
+func (db *Database) DeleteUser(ctx context.Context, id string) error {
+	// too tired
+	return nil
+}

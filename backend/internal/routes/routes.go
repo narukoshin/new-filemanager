@@ -22,5 +22,7 @@ func Register(e *echo.Echo, users *api.Users) {
 	// User routes
 	api.POST("/users", users.CreateUser)
 	api.GET("/users", users.GetUsers)
+	api.GET("/users/:userid", users.GetUserById)
+	api.DELETE("/users/:userid", users.DeleteUser)
 
 }

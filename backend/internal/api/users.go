@@ -60,3 +60,36 @@ func (h *Users) GetUsers(ctx *echo.Context) error {
 	return requestctx.With(reqctx).
 		Response(ctx, userList)
 }
+
+func (h *Users) GetUserById(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+	logging.Logger.Debug().Msg("Received a request to get a user by id")
+	userId := ctx.Param("userid")
+	user, err := h.service.GetUserById(reqctx, userId)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(
+				http.StatusInternalServerError,
+				"failed to get user",
+			).
+			Response(ctx, nil)
+	}
+	return requestctx.With(reqctx).
+		Response(ctx, user)
+}
+
+func (h *Users) DeleteUser(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+	logging.Logger.Debug().Msg("Received a request to delete a user")
+	userId := ctx.Param("userid")
+	err := h.service.DeleteUser(reqctx, userId)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(
+				http.StatusInternalServerError,
+				"failed to delete user",
+			).
+			Response(ctx, nil)
+	}
+	return ctx.NoContent(http.StatusNoContent)
+}

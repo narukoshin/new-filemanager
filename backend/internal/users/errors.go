@@ -21,4 +21,6 @@ var (
 	ErrUsernameTooLong = errors.New("username is too long")
 	// ErrUsernameInvalid indicates that the username is invalid.
 	ErrUsernameInvalid = errors.New("username is invalid")
+	// ErrUserNotFound indicates that the user was not found.
+	ErrUserNotFound = errors.New("user not found")
 )

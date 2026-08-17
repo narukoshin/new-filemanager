@@ -96,3 +96,64 @@ func (s *Service) GetUsers(ctx context.Context) ([]*user.User, error) {
 	}
 	return users, nil
 }
+
+// GetUserById returns a user by id.
+func (s *Service) GetUserById(ctx context.Context, id string) (*user.User, error) {
+	user := &user.User{}
+	// validating user input
+	if id == "" {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message("id is required")
+		return nil, ErrUserNotFound
+	}
+	// trimming the id to remove any leading or trailing whitespace
+	id = strings.TrimSpace(id)
+	// validating the id
+	if err := validateUserID(id); err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message(err.Error())
+		return nil, err
+	}
+	// getting the user by id
+	user, err := s.db.GetUserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	// if the user doesnt exist, responding with 404 and error message
+	if user.ID == 0 {
+		requestctx.With(ctx).
+			Status(http.StatusNotFound).
+			Message("user not found")
+		return nil, ErrUserNotFound
+	}
+	return user, nil
+}
+
+// DeleteUser deletes a user by id.
+func (s *Service) DeleteUser(ctx context.Context, id string) error {
+	logging.Logger.Debug().Msg("Deleting user")
+	// validating user input
+	if id == "" {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message("id is required")
+		return ErrUserNotFound
+	}
+	// trimming the id to remove any leading or trailing whitespace
+	id = strings.TrimSpace(id)
+	// validating the id
+	if err := validateUserID(id); err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message(err.Error())
+		return err
+	}
+	// deleting the user
+	err := s.db.DeleteUser(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
