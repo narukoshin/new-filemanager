@@ -54,12 +54,16 @@ func GetLevel() zerolog.Level {
 		return zerolog.InfoLevel
 	case "warn":
 		return zerolog.WarnLevel
+	case "trace":
+		return zerolog.TraceLevel
 	case "error":
 		return zerolog.ErrorLevel
 	case "fatal":
 		return zerolog.FatalLevel
 	case "panic":
 		return zerolog.PanicLevel
+	case "disabled":
+		return zerolog.Disabled
 	default:
 		return zerolog.InfoLevel
 	}
