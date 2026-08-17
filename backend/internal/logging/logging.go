@@ -40,5 +40,27 @@ func Configure() error {
 	} else {
 		Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	}
+	// set log level
+	zerolog.SetGlobalLevel(GetLevel())
 	return nil
+}
+
+// GetLevel returns the configured log level.
+func GetLevel() zerolog.Level {
+	switch config.Conf.Logging.Level {
+	case "debug":
+		return zerolog.DebugLevel
+	case "info":
+		return zerolog.InfoLevel
+	case "warn":
+		return zerolog.WarnLevel
+	case "error":
+		return zerolog.ErrorLevel
+	case "fatal":
+		return zerolog.FatalLevel
+	case "panic":
+		return zerolog.PanicLevel
+	default:
+		return zerolog.InfoLevel
+	}
 }
