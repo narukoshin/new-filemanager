@@ -13,7 +13,7 @@ import (
 // VERSION is the application version.
 const VERSION = "1.0.0"
 
-// init sets the version of the application
+// init sets the application version.
 func init() {
 	config.SetVersion(VERSION)
 }

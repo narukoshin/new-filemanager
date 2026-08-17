@@ -6,6 +6,7 @@ import (
 	"context"
 )
 
+// CreateUser inserts user into the database and populates its generated fields.
 func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 	row := db.db.QueryRowContext(
 		ctx,
@@ -39,7 +40,7 @@ func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 	)
 }
 
-// check if user exists by username
+// UserExists reports whether a user with username exists.
 func (db *Database) UserExists(ctx context.Context, username string) (bool, error) {
 	row := db.db.QueryRowContext(
 		ctx,
@@ -47,12 +48,41 @@ func (db *Database) UserExists(ctx context.Context, username string) (bool, erro
 		username,
 	)
 	var id int64
-	err := row.Scan(&id)
-	if err != nil {
-		return false, err
-	}
+	row.Scan(&id)
 	if id == 0 {
 		return false, nil
 	}
 	return true, nil
+}
+
+// GetUsers returns all users in the database.
+func (db *Database) GetUsers(ctx context.Context) ([]*user.User, error) {
+	rows, err := db.db.QueryContext(
+		ctx,
+		`SELECT id, username, role, disabled, created_at, updated_at FROM users`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	users := make([]*user.User, 0)
+	for rows.Next() {
+		user := &user.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Role,
+			&user.Disabled,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
 }

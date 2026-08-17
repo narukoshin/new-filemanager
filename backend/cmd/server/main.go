@@ -1,4 +1,3 @@
-// Command server runs the file manager backend.
 package main
 
 /**;
@@ -17,6 +16,7 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 )
 
+// main starts the file manager server.
 func main() {
 	if err := app.Start(); err != nil {
 		logging.Logger.Fatal().Err(err).Msg("failed to start application")

@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-// Register adds the application's HTTP routes
+// Register adds the application's HTTP routes.
 func Register(e *echo.Echo, users *api.Users) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {
@@ -21,5 +21,6 @@ func Register(e *echo.Echo, users *api.Users) {
 
 	// User routes
 	api.POST("/users", users.CreateUser)
+	api.GET("/users", users.GetUsers)
 
 }

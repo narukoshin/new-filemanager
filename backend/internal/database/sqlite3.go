@@ -16,6 +16,7 @@ type Database struct {
 }
 
 var (
+	// errDatabaseNotConfigured indicates that no database file was configured.
 	errDatabaseNotConfigured = errors.New("database not configured")
 )
 
