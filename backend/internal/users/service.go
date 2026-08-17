@@ -42,6 +42,15 @@ func (s *Service) CreateUser(ctx context.Context, req *user.CreateUserRequest) (
 	if req.Role == "" {
 		req.Role = role.DefaultRole
 	}
+
+	// validate the username
+	if err := validateUsername(req.Username); err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message(err.Error())
+		return nil, err
+	}
+
 	// check if the user already exists
 	exists, err := s.db.UserExists(ctx, req.Username)
 	if err != nil {

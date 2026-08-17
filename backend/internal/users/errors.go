@@ -15,4 +15,10 @@ var (
 	ErrUsernameExists = errors.New("username already exists")
 	// ErrNoUsers indicates that no users were found.
 	ErrNoUsers = errors.New("no users found")
+	// ErrUsernameTooShort indicates that the username is too short.
+	ErrUsernameTooShort = errors.New("username is too short")
+	// ErrUsernameTooLong indicates that the username is too long.
+	ErrUsernameTooLong = errors.New("username is too long")
+	// ErrUsernameInvalid indicates that the username is invalid.
+	ErrUsernameInvalid = errors.New("username is invalid")
 )
