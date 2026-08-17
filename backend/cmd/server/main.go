@@ -18,11 +18,6 @@ import (
 )
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logging.Logger.Error().Interface("panic", err).Msg("panicked")
-		}
-	}()
 	if err := app.Start(); err != nil {
 		logging.Logger.Fatal().Err(err).Msg("failed to start application")
 	}
