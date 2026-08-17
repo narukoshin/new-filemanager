@@ -38,5 +38,8 @@ func migrate(db *sql.DB) error {
 	if len(r) > 0 {
 		logging.Logger.Info().Msgf("Migrated %d migrations", len(r))
 	}
+	for _, r := range r {
+		logging.Logger.Debug().Msgf("Migrated %s, version %d, duration: %v", r.Source.Path, r.Source.Version, r.Duration)
+	}
 	return nil
 }

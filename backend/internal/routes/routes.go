@@ -18,4 +18,8 @@ func Register(e *echo.Echo, users *api.Users) {
 	api.GET("/version", func(c *echo.Context) error {
 		return c.JSON(200, map[string]string{"version": config.GetVersion()})
 	})
+
+	// User routes
+	api.POST("/users", users.CreateUser)
+
 }
