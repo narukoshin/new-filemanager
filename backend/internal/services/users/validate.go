@@ -1,9 +1,9 @@
 package users
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
-	"errors"
 )
 
 // usernameRegex is the regular expression used to validate usernames.
@@ -23,7 +23,6 @@ func validateUsername(username string) error {
 	return nil
 }
 
-// 
 func validateUserID(id string) error {
 	// checking if the id is a valid integer
 	_, err := strconv.Atoi(id)

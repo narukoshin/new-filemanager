@@ -133,7 +133,7 @@ func (db *Database) DeleteUser(ctx context.Context, id string) (bool, error) {
 }
 
 // UpdateUser
-func (db *Database) UpdateUser(ctx context.Context, id string, user *user.User) (bool, error) {
+func (db *Database) UpdateUser(ctx context.Context, id string, user *user.User) error {
 	row := db.db.QueryRowContext(
 		ctx,
 		`UPDATE users SET 
@@ -148,13 +148,12 @@ func (db *Database) UpdateUser(ctx context.Context, id string, user *user.User) 
 		user.Disabled,
 		id,
 	)
-	err := row.Scan(
+	if err := row.Scan(
 		&user.ID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
-	)
-	if err != nil {
-		return false, err
+	); err != nil {
+		return err
 	}
-	return true, nil
+	return nil
 }

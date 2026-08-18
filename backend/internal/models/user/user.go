@@ -37,5 +37,5 @@ type CreateUserRequest struct {
 type UpdateUserRequest struct {
 	Profile
 	Password string `json:"password"`
-	Disabled bool `json:"disabled"`
+	Disabled bool   `json:"disabled"`
 }

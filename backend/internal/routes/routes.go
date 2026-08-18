@@ -8,8 +8,9 @@ import (
 
 // Register adds the application's HTTP routes.
 func Register(
-	e *echo.Echo, 
+	e *echo.Echo,
 	users *api.Users,
+	auth *api.Auth,
 ) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {
@@ -23,7 +24,7 @@ func Register(
 	})
 
 	// Auth routes
-	api.POST("/auth/login", nil)
+	api.POST("/auth/login", auth.Login)
 
 	// User routes
 	api.POST("/users", users.CreateUser)

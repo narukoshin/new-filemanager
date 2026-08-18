@@ -213,9 +213,7 @@ func (s *Service) UpdateUser(ctx context.Context, id string, req *user.UpdateUse
 		Password_hash: req.Password,
 		Disabled:      req.Disabled,
 	}
-	if status, err := s.db.UpdateUser(ctx, id, updatedUser); err != nil {
-		return nil, err
-	} else if !status {
+	if err := s.db.UpdateUser(ctx, id, updatedUser); err != nil {
 		requestctx.With(ctx).
 			Status(http.StatusNotFound).
 			Message("user not found")

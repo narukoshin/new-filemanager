@@ -7,7 +7,8 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/routes"
 	"codeberg.org/narukoshin/new-filemanager/internal/server"
-	"codeberg.org/narukoshin/new-filemanager/internal/users"
+	"codeberg.org/narukoshin/new-filemanager/internal/services/auth"
+	"codeberg.org/narukoshin/new-filemanager/internal/services/users"
 )
 
 // VERSION is the application version.
@@ -37,9 +38,11 @@ func Start() error {
 
 	// initializing the services
 	usersService := users.NewService(db)
+	authService := auth.NewService(db)
 
 	// initializing the APIs
 	users := api.NewUsers(usersService)
+	auth := api.NewAuth(authService)
 
 	// initializing the HTTP server
 	srv := server.New(":" + config.Conf.Server.Port)
@@ -47,6 +50,7 @@ func Start() error {
 	routes.Register(
 		srv.Router(),
 		users,
+		auth,
 	)
 	return srv.Start()
 }

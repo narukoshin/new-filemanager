@@ -2,6 +2,7 @@ package server
 
 import (
 	"codeberg.org/narukoshin/new-filemanager/internal/middleware"
+	"codeberg.org/narukoshin/new-filemanager/internal/validation"
 
 	"github.com/labstack/echo/v5"
 )
@@ -15,6 +16,7 @@ type Server struct {
 // New creates the HTTP server.
 func New(address string) *Server {
 	router := echo.New()
+	router.Validator = validation.New()
 
 	// Runs before routing.
 	router.Pre(

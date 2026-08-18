@@ -4,7 +4,7 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
-	"codeberg.org/narukoshin/new-filemanager/internal/users"
+	"codeberg.org/narukoshin/new-filemanager/internal/services/users"
 	"github.com/labstack/echo/v5"
 	"net/http"
 )
@@ -115,8 +115,7 @@ func (h *Users) UpdateUser(ctx *echo.Context) error {
 		return requestctx.With(reqctx).
 			Fallback(
 				http.StatusInternalServerError,
-				// "failed to update user",
-				err.Error(),
+				"failed to update user",
 			).Response(ctx, nil)
 	}
 	return ctx.JSON(http.StatusOK, updatedUser)
