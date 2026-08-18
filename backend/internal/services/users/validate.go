@@ -11,10 +11,10 @@ var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 // validateUsername validates the username.
 func validateUsername(username string) error {
-	if len(username) < 3 {
+	if len(username) < 4 {
 		return ErrUsernameTooShort
 	}
-	if len(username) > 30 {
+	if len(username) > 32 {
 		return ErrUsernameTooLong
 	}
 	if !usernameRegex.MatchString(username) {
