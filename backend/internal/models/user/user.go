@@ -33,3 +33,9 @@ type CreateUserRequest struct {
 	// Password is the new user's plaintext password.
 	Password string `json:"password"`
 }
+
+type UpdateUserRequest struct {
+	Profile
+	Password string `json:"password"`
+	Disabled bool `json:"disabled"`
+}

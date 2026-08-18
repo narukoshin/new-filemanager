@@ -116,7 +116,45 @@ func (db *Database) GetUserById(ctx context.Context, id string) (*user.User, err
 }
 
 // DeleteUser deletes a user by id.
-func (db *Database) DeleteUser(ctx context.Context, id string) error {
-	// too tired
-	return nil
+func (db *Database) DeleteUser(ctx context.Context, id string) (bool, error) {
+	result, err := db.db.ExecContext(
+		ctx,
+		`DELETE FROM users WHERE id = $1`,
+		id,
+	)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return rowsAffected > 0, nil
+}
+
+// UpdateUser
+func (db *Database) UpdateUser(ctx context.Context, id string, user *user.User) (bool, error) {
+	row := db.db.QueryRowContext(
+		ctx,
+		`UPDATE users SET 
+			username = $1, 
+			role = $2, 
+			disabled = $3, 
+			updated_at = current_timestamp
+		WHERE id = $4 
+		RETURNING id, created_at, updated_at`,
+		user.Username,
+		user.Role.String(),
+		user.Disabled,
+		id,
+	)
+	err := row.Scan(
+		&user.ID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

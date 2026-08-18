@@ -91,5 +91,33 @@ func (h *Users) DeleteUser(ctx *echo.Context) error {
 			).
 			Response(ctx, nil)
 	}
+	// returning 204 code without body
 	return ctx.NoContent(http.StatusNoContent)
+}
+
+func (h *Users) UpdateUser(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+	logging.Logger.Debug().Msg("Received a request to update a user")
+	userId := ctx.Param("userid")
+	var req user.UpdateUserRequest
+	if err := ctx.Bind(&req); err != nil {
+		return requestctx.With(reqctx).
+			Status(http.StatusBadRequest).
+			Message("invalid request body").
+			Response(ctx, nil)
+	}
+	updatedUser, err := h.service.UpdateUser(
+		reqctx,
+		userId,
+		&req,
+	)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(
+				http.StatusInternalServerError,
+				// "failed to update user",
+				err.Error(),
+			).Response(ctx, nil)
+	}
+	return ctx.JSON(http.StatusOK, updatedUser)
 }

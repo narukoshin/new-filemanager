@@ -7,7 +7,10 @@ import (
 )
 
 // Register adds the application's HTTP routes.
-func Register(e *echo.Echo, users *api.Users) {
+func Register(
+	e *echo.Echo, 
+	users *api.Users,
+) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {
 		return c.JSON(200, map[string]string{"status": "ok"})
@@ -19,10 +22,13 @@ func Register(e *echo.Echo, users *api.Users) {
 		return c.JSON(200, map[string]string{"version": config.GetVersion()})
 	})
 
+	// Auth routes
+	api.POST("/auth/login", nil)
+
 	// User routes
 	api.POST("/users", users.CreateUser)
 	api.GET("/users", users.GetUsers)
 	api.GET("/users/:userid", users.GetUserById)
+	api.PUT("/users/:userid", users.UpdateUser)
 	api.DELETE("/users/:userid", users.DeleteUser)
-
 }
