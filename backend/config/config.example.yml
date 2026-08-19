@@ -1,0 +1,10 @@
+logging:
+  file: logs/everything.log
+  level: debug # info, warn, trace, error, fatal, panic, disabled
+
+server:
+  port: 1234
+
+database:
+  sqlite3:
+    file: database/my-awesome-database.db
