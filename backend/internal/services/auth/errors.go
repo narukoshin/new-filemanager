@@ -3,5 +3,5 @@ package auth
 import "errors"
 
 var (
-	ErrWrongPassword = errors.New("wrong password")
+	ErrInvalidCredentials = errors.New("invalid credentials")
 )

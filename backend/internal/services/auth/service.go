@@ -7,21 +7,30 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/security/password"
 	"context"
+	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 )
 
 type Service struct {
-	db       *database.Database
-	password *password.Argon2id
+	db        *database.Database
+	password  *password.Argon2id
+	jwtSecret []byte
+}
+
+type TokenClaims struct {
+	Role string `json:"role"`
+	jwt.RegisteredClaims
 }
 
 func NewService(
 	db *database.Database,
 	password *password.Argon2id,
+	jwtSecret []byte,
 ) *Service {
 	return &Service{
-		db:       db,
-		password: password,
+		db:        db,
+		password:  password,
+		jwtSecret: jwtSecret,
 	}
 }
 
@@ -29,6 +38,9 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) error {
 	// searching the user by username
 	user, err := s.db.GetUserByUsername(ctx, req.Username)
 	if err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusUnauthorized).
+			Message(ErrInvalidCredentials.Error())
 		return err
 	}
 
@@ -42,11 +54,19 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) error {
 		return err
 	}
 	if !ok {
-		logging.Logger.Debug().Msg("wrong password")
+		logging.Logger.Debug().Msg("invalid credentials")
 		requestctx.With(ctx).
 			Status(http.StatusUnauthorized).
-			Message(ErrWrongPassword.Error())
-		return ErrWrongPassword
+			Message(ErrInvalidCredentials.Error())
+		return ErrInvalidCredentials
 	}
+
+	token, err := s.GenerateToken(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	logging.Logger.Debug().Str("token", token).Msg("login token")
+
 	return nil
 }

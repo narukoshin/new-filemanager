@@ -12,6 +12,7 @@ func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 		ctx,
 		`INSERT INTO users (
 			username,
+			uuid,
 			password_hash,
 			role,
 			disabled
@@ -19,9 +20,11 @@ func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 			$1,
 			$2,
 			$3,
-			$4
+			$4,
+			$5
 		) RETURNING id, created_at, updated_at`,
 		user.Username,
+		user.UUID,
 		user.Password_hash,
 		user.Role.String(),
 		user.Disabled,
@@ -29,6 +32,7 @@ func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 
 	logging.Logger.Debug().
 		Str("username", user.Username).
+		Str("uuid", user.UUID).
 		Str("role", user.Role.String()).
 		Bool("disabled", user.Disabled).
 		Msg("Inserting the user into the database")
@@ -59,7 +63,7 @@ func (db *Database) UserExists(ctx context.Context, username string) (bool, erro
 func (db *Database) GetUsers(ctx context.Context) ([]*user.User, error) {
 	rows, err := db.db.QueryContext(
 		ctx,
-		`SELECT id, username, role, disabled, created_at, updated_at FROM users`,
+		`SELECT id, uuid, username, role, disabled, created_at, updated_at FROM users`,
 	)
 	if err != nil {
 		return nil, err
@@ -70,6 +74,7 @@ func (db *Database) GetUsers(ctx context.Context) ([]*user.User, error) {
 		user := &user.User{}
 		err := rows.Scan(
 			&user.ID,
+			&user.UUID,
 			&user.Username,
 			&user.Role,
 			&user.Disabled,
@@ -92,11 +97,12 @@ func (db *Database) GetUserById(ctx context.Context, id string) (*user.User, err
 	user := &user.User{}
 	row := db.db.QueryRowContext(
 		ctx,
-		`SELECT id, username, role, disabled, created_at, updated_at FROM users WHERE id = $1`,
+		`SELECT id, uuid, username, role, disabled, created_at, updated_at FROM users WHERE id = $1`,
 		id,
 	)
 	row.Scan(
 		&user.ID,
+		&user.UUID,
 		&user.Username,
 		&user.Role,
 		&user.Disabled,

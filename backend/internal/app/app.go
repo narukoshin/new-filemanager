@@ -42,7 +42,7 @@ func Start() error {
 
 	// initializing the services
 	usersService := users.NewService(db, passwordHasher)
-	authService := auth.NewService(db, passwordHasher)
+	authService := auth.NewService(db, passwordHasher, []byte("temp-secret")) // TODO: CHANGE LATER
 
 	// initializing the APIs
 	users := api.NewUsers(usersService)

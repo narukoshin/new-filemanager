@@ -100,12 +100,19 @@ func (s *Service) CreateUser(ctx context.Context, req *user.CreateUserRequest) (
 	// setting the hashed password
 	req.Password = hashedPassword
 
+	// generating a UUID
+	id, err := s.generateUUID()
+	if err != nil {
+		return nil, err
+	}
+
 	// create the user
 	createdUser := &user.User{
 		Profile: user.Profile{
 			Username: req.Username,
 			Role:     role.Role(req.Role),
 		},
+		UUID:          id,
 		Password_hash: req.Password,
 		Disabled:      false,
 	}

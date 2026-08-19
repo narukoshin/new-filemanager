@@ -13,7 +13,8 @@ type Profile struct {
 // User represents a persisted user account.
 type User struct {
 	// ID uniquely identifies the user.
-	ID int64 `json:"id"`
+	ID   int64  `json:"id"`
+	UUID string `json:"uuid"`
 
 	Profile
 
