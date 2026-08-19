@@ -6,6 +6,7 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/database"
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/routes"
+	"codeberg.org/narukoshin/new-filemanager/internal/security/password"
 	"codeberg.org/narukoshin/new-filemanager/internal/server"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/auth"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/users"
@@ -36,9 +37,12 @@ func Start() error {
 	}
 	defer db.Close()
 
+	// security-stuff wiring
+	passwordHasher := password.NewArgon2id()
+
 	// initializing the services
-	usersService := users.NewService(db)
-	authService := auth.NewService(db)
+	usersService := users.NewService(db, passwordHasher)
+	authService := auth.NewService(db, passwordHasher)
 
 	// initializing the APIs
 	users := api.NewUsers(usersService)

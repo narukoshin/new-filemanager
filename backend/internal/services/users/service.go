@@ -6,6 +6,7 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/models/role"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
+	"codeberg.org/narukoshin/new-filemanager/internal/security/password"
 	"context"
 	"net/http"
 	"strings"
@@ -13,12 +14,16 @@ import (
 
 // Service implements user-related business operations.
 type Service struct {
-	db *database.Database
+	db       *database.Database
+	password *password.Argon2id
 }
 
 // NewService creates a user service backed by db.
-func NewService(db *database.Database) *Service {
-	return &Service{db: db}
+func NewService(
+	db *database.Database,
+	password *password.Argon2id,
+) *Service {
+	return &Service{db: db, password: password}
 }
 
 // CreateUser validates req and creates a user.
@@ -65,6 +70,35 @@ func (s *Service) CreateUser(ctx context.Context, req *user.CreateUserRequest) (
 			Message("username already exists")
 		return nil, ErrUsernameExists
 	}
+
+	// hashing the password
+	logging.Logger.Debug().Str("password", req.Password).Msg("Hashing the password") // debugging only, REMOVE LATER
+	hashedPassword, err := s.password.Hash(req.Password)
+	if err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusInternalServerError).
+			Message(err.Error())
+		return nil, err
+	}
+	logging.Logger.Debug().Str("password", hashedPassword).Msg("Hashed password") // // debugging only, REMOVE LATER
+
+	// testing if the password verify works
+	ok, err := s.password.Verify(req.Password, hashedPassword)
+	if err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusInternalServerError).
+			Message(err.Error())
+		return nil, err
+	}
+
+	if ok {
+		logging.Logger.Debug().Msg("Password verification passed")
+	} else {
+		logging.Logger.Debug().Msg("Password verification failed")
+	}
+
+	// setting the hashed password
+	req.Password = hashedPassword
 
 	// create the user
 	createdUser := &user.User{
