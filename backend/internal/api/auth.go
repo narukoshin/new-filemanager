@@ -32,6 +32,12 @@ func (h *Auth) Login(ctx *echo.Context) error {
 			Response(ctx, nil)
 	}
 
-	h.service.Login(reqctx, req)
+	// login the user
+	err := h.service.Login(reqctx, req)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(http.StatusInternalServerError, "failed to login").
+			Response(ctx, nil)
+	}
 	return nil
 }
