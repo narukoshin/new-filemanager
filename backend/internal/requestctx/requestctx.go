@@ -3,6 +3,7 @@ package requestctx
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v5"
 )
@@ -84,10 +85,19 @@ func (r *Request) Response(ctx *echo.Context, data any) error {
 	// Message response.
 	if r.state.message != "" {
 		return ctx.JSON(status, map[string]any{
-			"message": r.state.message,
-			"data":    data,
+			"message":   r.state.message,
+			"data":      data,
+			"timestamp": time.Now().Unix(),
 		})
 	}
 	// Normal response.
 	return ctx.JSON(status, data)
+}
+
+func (r *Request) ContextGet() (string, error) {
+	token, ok := r.state.body.(string)
+	if !ok {
+		return "", nil
+	}
+	return token, nil
 }

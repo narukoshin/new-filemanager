@@ -1,6 +1,8 @@
 package api
 
 import (
+	"codeberg.org/narukoshin/new-filemanager/internal/logging"
+	"codeberg.org/narukoshin/new-filemanager/internal/middleware"
 	authmd "codeberg.org/narukoshin/new-filemanager/internal/models/auth"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/auth"
@@ -33,11 +35,34 @@ func (h *Auth) Login(ctx *echo.Context) error {
 	}
 
 	// login the user
-	err := h.service.Login(reqctx, req)
+	token, err := h.service.Login(reqctx, req)
 	if err != nil {
 		return requestctx.With(reqctx).
 			Fallback(http.StatusInternalServerError, "failed to login").
 			Response(ctx, nil)
 	}
-	return nil
+	return requestctx.With(reqctx).
+		Status(http.StatusOK).
+		Response(ctx, map[string]string{"token": token})
+}
+
+func (h *Auth) GetMe(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+	uuid, err := middleware.UserUUID(ctx)
+	if err != nil {
+		logging.Logger.Debug().Msg(err.Error())
+		return requestctx.With(reqctx).
+			Fallback(http.StatusUnauthorized, "unauthorized").
+			Response(ctx, nil)
+	}
+	user, err := h.service.GetUserByUUID(reqctx, uuid)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(http.StatusInternalServerError, "failed to get user").
+			Response(ctx, nil)
+	}
+
+	return requestctx.With(reqctx).
+		Status(http.StatusOK).
+		Response(ctx, user)
 }

@@ -3,6 +3,9 @@ package routes
 import (
 	"codeberg.org/narukoshin/new-filemanager/internal/api"
 	"codeberg.org/narukoshin/new-filemanager/internal/config"
+	authservice "codeberg.org/narukoshin/new-filemanager/internal/services/auth"
+	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v5"
 	"github.com/labstack/echo/v5"
 )
 
@@ -11,6 +14,7 @@ func Register(
 	e *echo.Echo,
 	users *api.Users,
 	auth *api.Auth,
+	jwtSecret []byte,
 ) {
 	// Health check
 	e.GET("/health", func(c *echo.Context) error {
@@ -25,6 +29,17 @@ func Register(
 
 	// Auth routes
 	api.POST("/auth/login", auth.Login)
+
+	protected := api.Group("")
+	protected.Use(echojwt.WithConfig(echojwt.Config{
+		SigningKey:    jwtSecret,
+		SigningMethod: jwt.SigningMethodHS256.Alg(),
+		NewClaimsFunc: func(ctx *echo.Context) jwt.Claims {
+			return new(authservice.TokenClaims)
+		},
+	}))
+
+	protected.GET("/auth/me", auth.GetMe)
 
 	// User routes
 	api.POST("/users", users.CreateUser)

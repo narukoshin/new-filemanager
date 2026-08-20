@@ -37,12 +37,15 @@ func Start() error {
 	}
 	defer db.Close()
 
+	// initializing the JWT secret
+	jwtsecret := []byte("temp-secret")
+
 	// security-stuff wiring
 	passwordHasher := password.NewArgon2id()
 
 	// initializing the services
 	usersService := users.NewService(db, passwordHasher)
-	authService := auth.NewService(db, passwordHasher, []byte("temp-secret")) // TODO: CHANGE LATER
+	authService := auth.NewService(db, passwordHasher, jwtsecret)
 
 	// initializing the APIs
 	users := api.NewUsers(usersService)
@@ -55,6 +58,7 @@ func Start() error {
 		srv.Router(),
 		users,
 		auth,
+		jwtsecret,
 	)
 	return srv.Start()
 }
