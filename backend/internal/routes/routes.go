@@ -40,6 +40,7 @@ func Register(
 	}))
 
 	protected.GET("/auth/me", auth.GetMe)
+	protected.POST("/auth/logout", auth.Logout)
 
 	// User routes
 	api.POST("/users", users.CreateUser)

@@ -3,6 +3,7 @@ package database
 import (
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
+	"codeberg.org/narukoshin/new-filemanager/internal/models/auth"
 	"context"
 	"fmt"
 )
@@ -63,4 +64,30 @@ func (db *Database) GetUserByUUID(ctx context.Context, uuid string) (*user.User,
 	logging.Logger.Debug().Str("dump", fmt.Sprintf("%+v", user)).Msg("Dumping user")
 
 	return user, nil
+}
+
+func (db *Database) RevokeToken(ctx context.Context, revokedToken auth.RevokedToken) error {
+	result, err := db.db.ExecContext(
+		ctx,
+		`INSERT INTO revoked_tokens (
+			jti,
+			expires_at
+		) VALUES (
+			$1,
+			$2
+		)`,
+		revokedToken.Jti,
+		revokedToken.RevokedAt,
+	)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("failed to revoke token")
+	}
+	return nil
 }

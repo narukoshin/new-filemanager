@@ -62,6 +62,15 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) (string,
 		return "", ErrInvalidCredentials
 	}
 
+	// check if the user is disabled
+	if user.Disabled {
+		logging.Logger.Debug().Msg("user is disabled")
+		requestctx.With(ctx).
+			Status(http.StatusUnauthorized).
+			Message(ErrInvalidCredentials.Error())
+		return "", ErrInvalidCredentials
+	}
+
 	token, err := s.GenerateToken(ctx, user)
 	if err != nil {
 		return "", err
@@ -70,6 +79,24 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) (string,
 	logging.Logger.Debug().Str("token", token).Msg("login token")
 
 	return token, nil
+}
+
+func (s *Service) Logout(ctx context.Context, revokedToken auth.RevokedToken) error {
+	logging.Logger.Debug().Msg("logging out")
+
+	if revokedToken.Jti == "" {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message("jti is required")
+		return ErrInvalidToken
+	}
+
+	// revoking the token
+	if err := s.db.RevokeToken(ctx, revokedToken); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Service) GetUserByUUID(ctx context.Context, uuid string) (*user.User, error) {

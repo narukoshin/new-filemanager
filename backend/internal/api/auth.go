@@ -7,6 +7,7 @@ import (
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/auth"
 	"github.com/labstack/echo/v5"
+	"strings"
 	"net/http"
 )
 
@@ -65,4 +66,32 @@ func (h *Auth) GetMe(ctx *echo.Context) error {
 	return requestctx.With(reqctx).
 		Status(http.StatusOK).
 		Response(ctx, user)
+}
+
+func (h *Auth) Logout(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+
+	claims, err := middleware.GetClaims(ctx)
+	if err != nil {
+		return requestctx.With(reqctx).
+			Fallback(http.StatusUnauthorized, "unauthorized").
+			Response(ctx, nil)
+	}
+
+	revokedToken := authmd.RevokedToken{
+		Jti: strings.TrimSpace(claims.ID),
+		RevokedAt: claims.ExpiresAt.Time,
+	}
+
+	err = h.service.Logout(reqctx, revokedToken)
+	if err != nil {
+		logging.Logger.Debug().Msg(err.Error())
+		return requestctx.With(reqctx).
+			Fallback(http.StatusInternalServerError, "failed to logout").
+			Response(ctx, nil)
+	}
+
+	return requestctx.With(reqctx).
+		Status(http.StatusOK).
+		Response(ctx, nil)
 }
