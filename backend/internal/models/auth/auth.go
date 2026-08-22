@@ -10,6 +10,6 @@ type AuthLoginRequest struct {
 }
 
 type RevokedToken struct {
-	Jti string
+	Jti       string
 	RevokedAt time.Time
 }

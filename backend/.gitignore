@@ -12,6 +12,8 @@
 !/cmd/**
 !/internal/
 !/internal/**
+!/scripts/
+!/scripts/**
 
 # Allow only .gitkeep in database folder
 !/database/.gitkeep

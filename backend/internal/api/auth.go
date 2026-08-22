@@ -1,14 +1,15 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/middleware"
 	authmd "codeberg.org/narukoshin/new-filemanager/internal/models/auth"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/auth"
 	"github.com/labstack/echo/v5"
-	"strings"
-	"net/http"
 )
 
 type Auth struct {
@@ -79,7 +80,7 @@ func (h *Auth) Logout(ctx *echo.Context) error {
 	}
 
 	revokedToken := authmd.RevokedToken{
-		Jti: strings.TrimSpace(claims.ID),
+		Jti:       strings.TrimSpace(claims.ID),
 		RevokedAt: claims.ExpiresAt.Time,
 	}
 
@@ -94,4 +95,20 @@ func (h *Auth) Logout(ctx *echo.Context) error {
 	return requestctx.With(reqctx).
 		Status(http.StatusOK).
 		Response(ctx, nil)
+}
+
+func (h *Auth) IsTokenRevoked(ctx *echo.Context) error {
+	reqctx := requestctx.New(ctx.Request().Context())
+	claims, err := middleware.GetClaims(ctx)
+	if err != nil {
+		return echo.ErrUnauthorized.Wrap(err)
+	}
+	jti := strings.TrimSpace(claims.ID)
+
+	err = h.service.IsTokenRevoked(reqctx, jti)
+	if err != nil {
+		logging.Logger.Debug().Msg(err.Error())
+		return echo.ErrUnauthorized.Wrap(err)
+	}
+	return nil
 }

@@ -1,15 +1,16 @@
 package users
 
 import (
+	"context"
+	"net/http"
+	"strings"
+
 	"codeberg.org/narukoshin/new-filemanager/internal/database"
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/role"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/security/password"
-	"context"
-	"net/http"
-	"strings"
 )
 
 // Service implements user-related business operations.
@@ -72,29 +73,12 @@ func (s *Service) CreateUser(ctx context.Context, req *user.CreateUserRequest) (
 	}
 
 	// hashing the password
-	logging.Logger.Debug().Str("password", req.Password).Msg("Hashing the password") // debugging only, REMOVE LATER
 	hashedPassword, err := s.password.Hash(req.Password)
 	if err != nil {
 		requestctx.With(ctx).
 			Status(http.StatusInternalServerError).
 			Message(err.Error())
 		return nil, err
-	}
-	logging.Logger.Debug().Str("password", hashedPassword).Msg("Hashed password") // // debugging only, REMOVE LATER
-
-	// testing if the password verify works
-	ok, err := s.password.Verify(req.Password, hashedPassword)
-	if err != nil {
-		requestctx.With(ctx).
-			Status(http.StatusInternalServerError).
-			Message(err.Error())
-		return nil, err
-	}
-
-	if ok {
-		logging.Logger.Debug().Msg("Password verification passed")
-	} else {
-		logging.Logger.Debug().Msg("Password verification failed")
 	}
 
 	// setting the hashed password
@@ -244,6 +228,17 @@ func (s *Service) UpdateUser(ctx context.Context, id string, req *user.UpdateUse
 			Message(err.Error())
 		return nil, err
 	}
+
+	hashedPassword, err := s.password.Hash(req.Password)
+	if err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusInternalServerError).
+			Message(err.Error())
+		return nil, err
+	}
+
+	// setting the hashed password
+	req.Password = hashedPassword
 
 	// update the user
 	updatedUser := &user.User{

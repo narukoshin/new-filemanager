@@ -1,13 +1,14 @@
 package database
 
 import (
-	"codeberg.org/narukoshin/new-filemanager/internal/config"
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"os"
 	"path/filepath"
+
+	"codeberg.org/narukoshin/new-filemanager/internal/config"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Database manages the application's database connection.

@@ -1,26 +1,22 @@
 package auth
 
 import (
+	"context"
+	"net/http"
+
 	"codeberg.org/narukoshin/new-filemanager/internal/database"
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/auth"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
+	"codeberg.org/narukoshin/new-filemanager/internal/security/jwt"
 	"codeberg.org/narukoshin/new-filemanager/internal/security/password"
-	"context"
-	"github.com/golang-jwt/jwt/v5"
-	"net/http"
 )
 
 type Service struct {
 	db        *database.Database
 	password  *password.Argon2id
 	jwtSecret []byte
-}
-
-type TokenClaims struct {
-	Role string `json:"role"`
-	jwt.RegisteredClaims
 }
 
 func NewService(
@@ -45,9 +41,6 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) (string,
 		return "", err
 	}
 
-	logging.Logger.Debug().Str("username", user.Username).Msg("login username")
-	logging.Logger.Debug().Str("password", user.Password_hash).Msg("login password")
-
 	// checking if the password matches
 	ok, err := s.password.Verify(req.Password, user.Password_hash)
 	if err != nil {
@@ -64,20 +57,16 @@ func (s *Service) Login(ctx context.Context, req auth.AuthLoginRequest) (string,
 
 	// check if the user is disabled
 	if user.Disabled {
-		logging.Logger.Debug().Msg("user is disabled")
 		requestctx.With(ctx).
 			Status(http.StatusUnauthorized).
 			Message(ErrInvalidCredentials.Error())
 		return "", ErrInvalidCredentials
 	}
 
-	token, err := s.GenerateToken(ctx, user)
+	token, err := jwt.New(s.jwtSecret, ctx, user).GenerateToken()
 	if err != nil {
 		return "", err
 	}
-
-	logging.Logger.Debug().Str("token", token).Msg("login token")
-
 	return token, nil
 }
 
@@ -93,6 +82,9 @@ func (s *Service) Logout(ctx context.Context, revokedToken auth.RevokedToken) er
 
 	// revoking the token
 	if err := s.db.RevokeToken(ctx, revokedToken); err != nil {
+		requestctx.With(ctx).
+			Status(http.StatusBadRequest).
+			Message(ErrInvalidCredentials.Error())
 		return err
 	}
 
@@ -108,4 +100,18 @@ func (s *Service) GetUserByUUID(ctx context.Context, uuid string) (*user.User, e
 		return nil, err
 	}
 	return user, nil
+}
+
+func (s *Service) IsTokenRevoked(ctx context.Context, jti string) error {
+	revoked, err := s.db.IsTokenRevoked(ctx, jti)
+	if err != nil {
+		return err
+	}
+	if revoked {
+		requestctx.With(ctx).
+			Status(http.StatusUnauthorized).
+			Message(ErrInvalidCredentials.Error())
+		return ErrInvalidCredentials
+	}
+	return nil
 }

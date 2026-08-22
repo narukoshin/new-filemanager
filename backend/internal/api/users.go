@@ -1,12 +1,13 @@
 package api
 
 import (
+	"net/http"
+
 	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"codeberg.org/narukoshin/new-filemanager/internal/requestctx"
 	"codeberg.org/narukoshin/new-filemanager/internal/services/users"
 	"github.com/labstack/echo/v5"
-	"net/http"
 )
 
 // Users provides user-related HTTP handlers.

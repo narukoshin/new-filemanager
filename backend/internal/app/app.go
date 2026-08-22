@@ -38,7 +38,7 @@ func Start() error {
 	defer db.Close()
 
 	// initializing the JWT secret
-	jwtsecret := []byte("temp-secret")
+	jwtsecret := []byte(config.Conf.Security.JWT.Secret)
 
 	// security-stuff wiring
 	passwordHasher := password.NewArgon2id()

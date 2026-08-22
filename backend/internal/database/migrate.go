@@ -1,11 +1,12 @@
 package database
 
 import (
-	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 	"context"
 	"database/sql"
 	"embed"
 	"io/fs"
+
+	"codeberg.org/narukoshin/new-filemanager/internal/logging"
 
 	"github.com/pressly/goose/v3"
 )

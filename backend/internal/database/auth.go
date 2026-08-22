@@ -1,11 +1,11 @@
 package database
 
 import (
-	"codeberg.org/narukoshin/new-filemanager/internal/logging"
-	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
-	"codeberg.org/narukoshin/new-filemanager/internal/models/auth"
 	"context"
 	"fmt"
+
+	"codeberg.org/narukoshin/new-filemanager/internal/models/auth"
+	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 )
 
 func (db *Database) GetUserByUsername(ctx context.Context, username string) (*user.User, error) {
@@ -31,9 +31,6 @@ func (db *Database) GetUserByUsername(ctx context.Context, username string) (*us
 	); err != nil {
 		return nil, err
 	}
-
-	logging.Logger.Debug().Str("dump", fmt.Sprintf("%+v", user)).Msg("Dumping user")
-
 	return user, nil
 }
 
@@ -60,9 +57,6 @@ func (db *Database) GetUserByUUID(ctx context.Context, uuid string) (*user.User,
 	); err != nil {
 		return nil, err
 	}
-
-	logging.Logger.Debug().Str("dump", fmt.Sprintf("%+v", user)).Msg("Dumping user")
-
 	return user, nil
 }
 
@@ -90,4 +84,19 @@ func (db *Database) RevokeToken(ctx context.Context, revokedToken auth.RevokedTo
 		return fmt.Errorf("failed to revoke token")
 	}
 	return nil
+}
+
+func (db *Database) IsTokenRevoked(ctx context.Context, jti string) (bool, error) {
+	var revoked bool
+	err := db.db.QueryRowContext(
+		ctx,
+		`SELECT EXISTS(
+			SELECT 1 FROM revoked_tokens WHERE jti = $1
+		)`,
+		jti,
+	).Scan(&revoked)
+	if err != nil {
+		return false, err
+	}
+	return revoked, nil
 }

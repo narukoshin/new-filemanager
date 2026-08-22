@@ -17,6 +17,8 @@ type Config struct {
 	Storage StorageConfig `yaml:"storage"`
 	// Database contains settings for database providers.
 	Database DatabaseConfig `yaml:"database"`
+	//
+	Security SecurityConfig `yaml:"security"`
 }
 
 // ServerConfig contains settings for the HTTP server.
@@ -61,6 +63,14 @@ type DatabaseConfig struct {
 type SQLite3Config struct {
 	// File is the path of the SQLite3 database file.
 	File string `yaml:"file"`
+}
+
+type SecurityConfig struct {
+	JWT JWTConfig `yaml:"jwt"`
+}
+
+type JWTConfig struct {
+	Secret string `yaml:"secret"`
 }
 
 var (

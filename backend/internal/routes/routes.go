@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"net/http"
+
 	"codeberg.org/narukoshin/new-filemanager/internal/api"
 	"codeberg.org/narukoshin/new-filemanager/internal/config"
-	authservice "codeberg.org/narukoshin/new-filemanager/internal/services/auth"
+	jwts "codeberg.org/narukoshin/new-filemanager/internal/security/jwt"
 	"github.com/golang-jwt/jwt/v5"
 	echojwt "github.com/labstack/echo-jwt/v5"
 	"github.com/labstack/echo/v5"
@@ -35,7 +37,11 @@ func Register(
 		SigningKey:    jwtSecret,
 		SigningMethod: jwt.SigningMethodHS256.Alg(),
 		NewClaimsFunc: func(ctx *echo.Context) jwt.Claims {
-			return new(authservice.TokenClaims)
+			return new(jwts.TokenClaims)
+		},
+		SuccessHandler: auth.IsTokenRevoked,
+		ErrorHandler: func(ctx *echo.Context, err error) error {
+			return ctx.JSON(http.StatusUnauthorized, map[string]string{"message": "unauthorized"})
 		},
 	}))
 
@@ -43,9 +49,9 @@ func Register(
 	protected.POST("/auth/logout", auth.Logout)
 
 	// User routes
-	api.POST("/users", users.CreateUser)
-	api.GET("/users", users.GetUsers)
-	api.GET("/users/:userid", users.GetUserById)
-	api.PUT("/users/:userid", users.UpdateUser)
-	api.DELETE("/users/:userid", users.DeleteUser)
+	protected.POST("/users", users.CreateUser)
+	protected.GET("/users", users.GetUsers)
+	protected.GET("/users/:userid", users.GetUserById)
+	protected.PUT("/users/:userid", users.UpdateUser)
+	protected.DELETE("/users/:userid", users.DeleteUser)
 }

@@ -1,9 +1,9 @@
 package database
 
 import (
-	"codeberg.org/narukoshin/new-filemanager/internal/logging"
-	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 	"context"
+
+	"codeberg.org/narukoshin/new-filemanager/internal/models/user"
 )
 
 // CreateUser inserts user into the database and populates its generated fields.
@@ -29,14 +29,6 @@ func (db *Database) CreateUser(ctx context.Context, user *user.User) error {
 		user.Role.String(),
 		user.Disabled,
 	)
-
-	logging.Logger.Debug().
-		Str("username", user.Username).
-		Str("uuid", user.UUID).
-		Str("role", user.Role.String()).
-		Bool("disabled", user.Disabled).
-		Msg("Inserting the user into the database")
-
 	return row.Scan(
 		&user.ID,
 		&user.CreatedAt,
@@ -144,12 +136,14 @@ func (db *Database) UpdateUser(ctx context.Context, id string, user *user.User) 
 		ctx,
 		`UPDATE users SET 
 			username = $1, 
-			role = $2, 
-			disabled = $3, 
+			password_hash = $2,
+			role = $3, 
+			disabled = $4, 
 			updated_at = current_timestamp
-		WHERE id = $4 
+		WHERE id = $5
 		RETURNING id, created_at, updated_at`,
 		user.Username,
+		user.Password_hash,
 		user.Role.String(),
 		user.Disabled,
 		id,
