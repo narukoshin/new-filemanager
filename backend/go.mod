@@ -9,7 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.30.3 // direct
 	github.com/golang-jwt/jwt/v5 v5.3.1 // direct
 	github.com/google/uuid v1.6.0 // direct
-	github.com/labstack/echo/v5 v5.3.1
+	github.com/labstack/echo/v5 v5.4.1
 	github.com/mattn/go-sqlite3 v1.14.50
 	github.com/pressly/goose/v3 v3.27.3
 	github.com/rs/zerolog v1.35.1
